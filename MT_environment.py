@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------------------------------------------------
+# Milling tool environment
+# V.1.0 04-Aug-2024
+# ------------------------------------------------------------------------------------------------------------------------
+
 import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
@@ -48,7 +53,7 @@ class MT_Env(gym.Env):
     # - One can additionally use _get_info (in step and reset) if some auxilliary info. needs to be sent - for e.g. Expert action or Reward      #   info. or even RUL
     def _get_observation(self):
         obs_values = np.array([
-            self.df.loc[self.current_time_step, 'timestamp'],
+            self.df.loc[self.current_time_step, 'time'],
             self.df.loc[self.current_time_step, 'vibration_x'],
             self.df.loc[self.current_time_step, 'vibration_y'],
             self.df.loc[self.current_time_step, 'force_z'],
