@@ -1,3 +1,6 @@
+# UTILITIES
+# V.2.0 94-Aug-2024 - Add tool wear data
+#
 # Setting background color
 # ax.set_facecolor('#EFEFEF')
 
@@ -7,6 +10,59 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import datetime
 
+def tool_wear_data(data_file, wear_threshold, normalize=False, add_noise=False, sampling_rate=1):
+    ## Read data
+    df_raw = pd.read_csv(data_file)
+
+    df = downsample(df_raw, sampling_rate)
+
+    # Reset index as the downsampling disturbs the index and then PPO.learn() fails. Gives a "Key error"
+    df = df.reset_index(drop=True)
+    n_points = len(df.index)
+
+    # 1. Add white noise for robustness
+    if add_noise:
+        df['tool_wear'] = df['tool_wear'] + np.random.normal(0, 1, n_points)/add_noise
+
+    # Normalize
+    if normalize:
+        WEAR_MIN = df['tool_wear'].min() 
+        WEAR_MAX = df['tool_wear'].max()
+        WEAR_THRESHOLD_NORMALIZED = (wear_threshold-WEAR_MIN)/(WEAR_MAX-WEAR_MIN)
+        df_normalized = (df-df.min())/(df.max()-df.min())
+
+        # df_normalized['ACTION_CODE'] = np.where(df_normalized['tool_wear'] < WEAR_THRESHOLD_NORMALIZED, 0.0, 1.0)
+        # print(f'Tool wear data imported ({n_points} records). WEAR_THRESHOLD_NORMALIZED: {WEAR_THRESHOLD_NORMALIZED:4.3f}')
+
+        df_train = df_normalized.copy(deep=True)
+
+        tool_wear = df_normalized['tool_wear']
+        action_code_normalized = df_normalized['ACTION_CODE']
+        action_code = df['ACTION_CODE']
+        df_train['ACTION_CODE'] = df['ACTION_CODE']
+    else:
+        df_train = df.copy(deep=True)
+        tool_wear = df['tool_wear']
+        action_code = df['ACTION_CODE']
+
+    plt.figure(figsize=(10, 2.5))
+    plt.plot(tool_wear, linewidth=1)
+
+    if normalize:
+        plt.plot(action_code_normalized, linewidth=1)
+        wear_threshold_return = WEAR_THRESHOLD_NORMALIZED
+        plt.axhline(y = WEAR_THRESHOLD_NORMALIZED, color = 'r', linestyle = '--', alpha=0.3) 
+    else:
+        plt.plot(action_code, linewidth=1)
+        wear_threshold_return = wear_threshold
+        plt.axhline(y = wear_threshold, color = 'r', linestyle = '--', alpha=0.3) 
+
+    plt.title(f'Tool wear')
+    plt.grid(color='lightgray', linestyle='-', linewidth=0.5)
+    plt.show()
+
+    return tool_wear, action_code, wear_threshold_return, df_train
+    
 def downsample(df, sample_rate):
     # import pandas as pd
     # df = pd.read_csv(file)
