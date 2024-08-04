@@ -1,5 +1,9 @@
 .ipynb_checkpoints/
-tensorboard/
 __pycache__/
 Code_Store/
+storage/
+models/
+images/
+results/
+tensorboard/
 *.csv
