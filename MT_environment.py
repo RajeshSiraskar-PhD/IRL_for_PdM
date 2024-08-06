@@ -1,6 +1,7 @@
 # ------------------------------------------------------------------------------------------------------------------------
 # Milling tool environment
 # V.1.0 04-Aug-2024
+# V.1.1 05-Aug-2024: Added random tool wear start point (random within 10% records from the begining)
 # ------------------------------------------------------------------------------------------------------------------------
 
 import numpy as np
@@ -8,6 +9,7 @@ import gymnasium as gym
 from gymnasium import spaces
 
 LAMBDA = 0.01
+RANDOM_TOOL_START_OF_LIFE = 0.10 # 10% from the start
 NO_ACTION = 0
 REPLACE = 1
 
@@ -62,7 +64,7 @@ class MillingTool_Env(gym.Env):
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
         # Actions - Normal, L1-maintenance, L2-maintenance, Replace
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(2)
 
     ## Add tool wear data-set
     def tool_wear_data(self, df):
@@ -110,11 +112,12 @@ class MillingTool_Env(gym.Env):
     # 5. Must return a tuple of the *initial* observation - use ``_get_observation`` 
 
     def reset(self, seed=None, options=None):
+        # print(' - reset')
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
 
         # Choose the tool wear at a random time (spatial) location from a uniformly random distribution
-        self.current_time_step = np.random.randint(0, self.records, 1, dtype=int)
+        self.current_time_step = np.random.randint(0, int(RANDOM_TOOL_START_OF_LIFE * self.records), 1, dtype=int)
         observation = self._get_observation()
         info = {'reset':'Reset'}
         
@@ -128,6 +131,7 @@ class MillingTool_Env(gym.Env):
     # 5. To gather ``observation`` and ``info``, we can use of ``_get_obs`` and ``_get_info``:
 
     def step(self, action):
+        # print(f' - step {action}')
         terminated = False
         reward = 0.0
         info = {'Step':'-'}
