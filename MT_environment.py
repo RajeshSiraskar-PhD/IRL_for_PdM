@@ -2,6 +2,7 @@
 # Milling tool environment
 # V.1.0 04-Aug-2024
 # V.1.1 05-Aug-2024: Added random tool wear start point (random within 10% records from the begining)
+# V.2.0 07-Aug-2024: Drop time - one of the main indicators. Add all force (x, y, z) and vibration (x, y, z) 
 # ------------------------------------------------------------------------------------------------------------------------
 
 import numpy as np
@@ -40,12 +41,18 @@ class MillingTool_Env(gym.Env):
         self.rul_threshold = rul_threshold # Usually 5% from 0.0 i.e. 95th percentile record value from the very end 
         
         # Observation vector: ['timestamp', 'vibration_x', 'vibration_y', 'force_z', 'tool_wear', 'RUL', 'ACTION_CODE']
+        # PHM Dataset: force_x	force_y	force_z	vibration_x	vibration_y	vibration_z	acoustic_emission_rms	tool_wear	ACTION_CODE	RUL
+
         high = np.array(
             [
-                self.records, # Max records (time)
+                # self.records, # Max records (time)
+                1.0,          # Max. force_x
+                1.0,          # Max. force_y
+                1.0,          # Max. force_z
                 1.0,          # Max. vibration_x
                 1.0,          # Max. vibration_y
-                1.0,          # Max. force_z
+                1.0,          # Max. vibration_z
+                
             ],
             dtype=np.float32,
         )
@@ -53,10 +60,13 @@ class MillingTool_Env(gym.Env):
         # observation space lower limits
         low = np.array(
             [
-                0,            # Min. time
-                -1.0,         # Min. vibration_x
-                -1.0,         # Min. vibration_y
-                -1.0,         # Min. force_z
+                # 0,            # Min. time
+                -1.0,          # Max. force_x
+                -1.0,          # Max. force_y
+                -1.0,          # Max. force_z
+                -1.0,          # Max. vibration_x
+                -1.0,          # Max. vibration_y
+                -1.0,          # Max. vibration_z
             ],
             dtype=np.float32,
         )
@@ -77,15 +87,28 @@ class MillingTool_Env(gym.Env):
     # - Create private method ``_get_obs`` that translates the environment’s state into an observation.
     # - One can additionally use _get_info (in step and reset) if some auxilliary info. needs to be sent - for e.g. Expert action or Reward      #   info. or even RUL
     def _get_observation(self):
+        # if (self.df is not None):
+        #     obs_values = np.array([
+        #         self.df.loc[self.current_time_step, 'time'],
+        #         self.df.loc[self.current_time_step, 'vibration_x'],
+        #         self.df.loc[self.current_time_step, 'vibration_y'],
+        #         self.df.loc[self.current_time_step, 'force_z']
+        #     ], dtype=np.float32)
+        # else:
+        #     obs_values = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+
         if (self.df is not None):
             obs_values = np.array([
-                self.df.loc[self.current_time_step, 'time'],
+                self.df.loc[self.current_time_step, 'force_x'],
+                self.df.loc[self.current_time_step, 'force_y'],
+                self.df.loc[self.current_time_step, 'force_z'],
                 self.df.loc[self.current_time_step, 'vibration_x'],
                 self.df.loc[self.current_time_step, 'vibration_y'],
-                self.df.loc[self.current_time_step, 'force_z']
+                self.df.loc[self.current_time_step, 'vibration_y']
             ], dtype=np.float32)
         else:
-            obs_values = np.array([0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+            obs_values = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
+        
         
         observation = obs_values.flatten()
         return observation
