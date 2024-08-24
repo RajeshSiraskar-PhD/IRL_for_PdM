@@ -9,7 +9,6 @@ results/
 tensorboard/
 *.csv
 Article/images/
-Article/*.bib
 Article/*.aux
 Article/*.log
 Article/*.out
