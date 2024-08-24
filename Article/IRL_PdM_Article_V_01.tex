@@ -1,0 +1,432 @@
+\documentclass{article}
+\usepackage[style=authoryear, backend=bibtex, natbib]{biblatex}
+\usepackage{graphicx}
+\addbibresource{bibliography.bib} % Bibliography file
+
+\usepackage[hidelinks]{hyperref}	% links
+\hypersetup{colorlinks = true, urlcolor = blue, linkcolor = blue, citecolor = blue}
+\usepackage{xcolor, soul} 	% Highlights
+\usepackage{booktabs}		% Tables
+\usepackage{array}			% Tables with word-wrap
+\usepackage{ragged2e}		% Ragged edges in tables
+\usepackage{arydshln} 		% dashed lines in tables
+\usepackage{setspace}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\onehalfspacing
+
+%%% MACROS
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\hlc}[2][purple!10]{{\colorlet{foo}{#1} \sethlcolor{foo}\hl{#2}}}
+\algnewcommand{\Inputs}[1]{%
+	\State \textbf{Inputs:}
+	\Statex \hspace*{\algorithmicindent}\parbox[t]{.8\linewidth}{\raggedright #1}
+}
+\algnewcommand{\Initialize}[1]{%
+	\State \textbf{Initialize:} {\raggedright #1}
+	% \Statex \hspace*{\algorithmicindent}\parbox[t]{.8\linewidth}{\raggedright #1}
+}
+
+%opening
+
+\title{Beyond Reinforcement Learning: A Tutorial on Applying Reward Learning to Predictive Maintenance}
+\author{Rajesh Siraskar}
+
+\begin{document}
+	\maketitle
+	\begin{abstract}
+		The role of the maintenance engineer in ensuring the smooth, disruption free, running of industrial machines is indispensable. Industrial plants depend on the expert judgment of the maintenance engineer to estimate machine part failures just so much in advance that quality of product is not affected and yet not so much in advance that the part's effective useful life is not fully utilized. While human judgment is undeniably superior to computer based algorithmic systems, they cannot physically cater to hundreds of machine parts simultaneously. Advances in reinforcement learning technology have enabled autonomous predictive maintenance of large scale plants. These algorithms replicate the human learning mechanism and optimize the part replacement problem using "cost functions". Design of reinforcement learning cost functions remains a "hand crafted" process. This article explores the application of Learning from Demonstration applied to this task for the predictive maintenance. This paper first provides a basic understanding of \hlc{IRL, inverse reinforcement learning}. We study broadly where it has been applied, emphasizing their applicability to the predictive maintenance domain. Using expert examples of desired tool replacement patterns the "Imitation Learning" learns human like replacement patterns. In the form of a tutorial, this paper demonstrates an implementation of the Behavior Cloning algorithm. We use the standard benchmark \hlc{IEEE PHM 2010} dataset and present experimental results.
+	\end{abstract}
+	
+\clearpage
+\section{IMPORTANT REFS}
+\begin{enumerate}
+	\item \href{https://web.stanford.edu/class/cs237b/pdfs/lecture/cs237b_lecture_12.pdf}{Stanford lecture} -- 14 pgs - SOLID foundation - use to sort out terms:
+	\begin{itemize}
+		\item Imitation Learning
+		\item Behavior Cloning
+		\item DAgger: Dataset Aggregation
+		\item Inverse Reinforcement Learning  
+		\item Apprenticeship Learning 
+		\item Maximum Margin Planning
+		\item Maximum Entropy Inverse Reinforcement Learning
+		\item Learning From Comparisons and Physical Feedback
+	\end{itemize}
+	\item \cite{Osa-2018} \href{https://arxiv.org/pdf/1811.06711}{An Algorithmic Perspective on Imitation Learning} 188 pgs Bible! UNIFORM notation for all algos. images, illustrations etc. Also \hlc{comparison of Supervised learning vs Imitation learning}!!!
+	\item \href{https://underactuated.mit.edu/imitation.html#:~:text=Broadly%20speaking%2C%20most%20approaches%20to,the%20data%20using%20supervised%20learning.}{Russ Tedrake MIT lecture \citep{TedrakeLecture2023}} - \hlc{USE \textbf{ONLY} for this quote and cite. Else } -- ``BC is interesting! used from LLM OPEN AI to the shortest path to building `robot foundation models`"  and for the opening para "Broadly speaking, most approaches to imitation learning can be categorized as either behavior cloning (BC) or inverse reinforcement learning (IRL). Behavior cloning attempts to learn a policy directly from the data using supervised learning. Inverse RL (aka inverse optimal control) attempts to learn a cost function from the data, and then uses potentially more traditional optimal control approaches to synthesize a policy for this cost function, in the hopes of generalizing significantly beyond the demonstration data"
+	\item \href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
+\end{enumerate}
+\begin{enumerate}
+	\item \cite{torabi2018BCO} -- BC from observation only: Possibly in the ``future direction'' section: [This is already my words] While BC provided a good introduction to imitation learning and is a simple algorithm, \cite{torabi2018BCO} provides an interesting algorithm, named BCO($\alpha$), that allows quick learning from observations \textit{only} (i.e., \textit{without} explicit action information. This is achieved using a two-step process.
+\end{enumerate}
+
+\section{Introduction}
+Reinforcement Learning (RL) is a machine learning technique that mimics the trial-and-error learning mechanism humans and animals use to learn a new task. A 'task' is a 'problem' such as learning to play chess, or for a robot painting, assembling automotive components is a task. The task we will focus on will be ``predictive maintenance''. The core elements of RL are shown in Figure \ref{fig:RL}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/RL-loop.pdf}
+	\caption{The Reinforcement Learning mechanism.}
+	\label{fig:RL}
+\end{figure}
+
+The `agent' is the learner. It learns by continuously interacting with its \textit{environment} and gathering feedback for every action $A_t$ it takes. When an action ($a\in \mathcal{A}$) is performed, the environment changes from an existing `state' $S_t$ and presents a new `state' $S_{t+1}$. A state ($s\in \mathcal{S}$) represents a specific condition of the modeled environment or system and is designed to contain all the relevant information needed by the agent to make decisions to achieve the objective. This state could be classified as being `good' or `bad' for the learning objective. For example, consider learning to ride a bicycle where moving forward is desirable, whereas falling isn't. Similarly, for predictive maintenance, successfully completing a maintenance task and ensuring a longer life of equipment is a positive outcome, whereas premature failure of equipment isn't. As in humans, the objective of learning a task is achieved when the actions that generate the favorable state are mastered. RL uses rewards (or penalties) to reinforce good behavior over bad. Rewards $R_{t+1}$ are scalar values that serve as the feedback signal. Over time, the agent attempts to maximize (or minimize) the rewards, and this reinforces good actions over bad, enabling it to learn an optimal `policy'. A policy $\pi$ is a mapping from states to probability distributions over actions.
+
+Theoretically, RL is based on the assumption that we can model the problem as a Markov Decision Process (MDP), \citep{sutton2018}\footnote{\citet{sutton2018} provides the most comprehensive theoretical introduction to the field of RL.}. 
+RL algorithms are broadly classified into two categories -- model-based and model-free. Model-based are methods that first learn a model of the system and then use it for learning a policy, while methods that directly update a policy (or value function), without having to explicitly learn a forward model of the system, are known as the model-free types. In both cases it is generally assumed that the reward function is known.
+
+There are two main parts of the model -- the reward function $R$, and the state transition probabilities, $P$. The environment's reaction when the agent takes a certain action, is defined by the model and the environment may change state depending on the action taken. Which state the environment transforms into, is decided by a state transition probability matrix. 
+
+For a given task, permissible actions are often pre-determined. Creating a good agent, therefore, hinges on selecting an appropriate RL algorithm based on the actions, designing the state `observation' vector, and crafting the reward function. Designing the observation vector is relatively easy -- one considers the sensory inputs available either readily or that can be made available. 
+
+Application of RL to the field of PdM has been covered in surveys such as \cite{Erhan2021Smart, Ren2021, Barja-Martinez2021, panzer2022, siraskar2023}
+
+\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance\footnote{}. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles. 
+
+\subsubsection{Inverse RL}
+It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
+While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
+\begin{enumerate}
+	\item Dagger - original paper \cite{Dagger-Ross2010}
+	\item CHAI - \cite{CHAI}
+	\item imitation algos -- \cite{imitation-algos}
+\end{enumerate}
+\par
+\hlc{WordSmith from}: \cite{berant2015imitation} -- To introduce adding the PdM..."To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of"\\
+A history $h = (s_1, a_1, . . . , a_T, s_{T+1})$ (\hlc{add a nice Figure! $\rightarrow$ SEE THE COMPRESSED HISTORY section in this article - as it mentions NON sequentioal }) is a sequence of states and actions, such that ... The policy for choosing predictive maintenance actions induces a distribution over histories \\
+\begin{equation}
+	p_{\theta}(h) = \prod^{T}_{t=1} p_\theta (a_t \mid s_t)    
+\end{equation}
+
+\hlc{WordsSmith} ``\textit{This can be accomplished through learning from demonstration, also known as imitation learning. A key principle of imitation learning is that while it may be very difficult to quantify why a certain behavior is desirable, the actual correct behavior is usually known by a human expert. Therefore, rather than having a human expert tune a system to achieve desired behavior, the expert can emonstrate desired behavior and the robot can tune itself to match the demonstration}``
+
+
+
+
+\hlc{\textbf{very important}}: sAMPLED TRajectoriersw  are not sequecntional. why that is ok -- we use the logic in \cite{berant2015imitation} -- compressed history. why it helps: by REMOVING time axis - we remove the logi of replacing after N units of time - i.e. PREVENTIVE maintenance. now it must base it decision on sensor readings - just like calling in an exprt NOT awre of whent the milling tool was installed.
+
+
+\par
+
+
+\section{Survey of IRL methods for predictive maintenance}
+
+\texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("predictive maintenance" OR "preventive maintenance" OR "prognostic")}
+
+Returned only TWO article: \cite{Chen-2021-Temporal} and \cite{Pinciroli2022-752} 	
+
+\cite{Chen-2021-Temporal}: Temporal-Logic-Based Semantic Fault Diagnosis With Time-Series Data From Industrial Internet of Things:
+The maturity of sensor network technologies has facilitated the emergence of an industrial Internet of Things (IIoT), which has collected an increasing volume of data. Converting these data into actionable intelligence for fault diagnosis is key to reducing unscheduled downtime and performance degradation, among other examples. This article formalizes a problem called semantic fault diagnosis- to construct the formal specifications of faults directly from data collected from IIoT-enabled systems. The specifications are written as signal temporal logic formulas, which can be easily interpreted by humans. To tackle the issue of the combinatorial explosion that arises, we propose an algorithm that combines ideas from agenda-based searching and imitation learning to train a policy that searches formulas in a strategic order. Specifically, we formulate the problem as a Markov decision process, which is further solved with a reinforcement learning algorithm. Our algorithm is applied to time-series data collected from an IIoT-enabled iron-making factory. The results show empirically that our proposed algorithm is both scalable to the size of the data set and interpretable, therefore allowing human users to take actions, for example, predictive maintenance.
+
+\cite{Pinciroli2022-752}: Pinciroli Optimization of the Operation and Maintenance of renewable energy systems by Deep Reinforcement Learning
+
+Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (O&M). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the O&M optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
+
+
+
+\section{Poiani-2024-Inverse Reinforcement Learning with Sub-optimal Experts}
+
+Inverse Reinforcement Learning Historically,
+solving an IRL problem (Adams et al., 2022) involves
+determining a reward function that is compatible with
+the behavior of an optimal expert. Since the seminal
+work of Ng et al. (2000), the problem has been recognized
+as ill-posed, as multiple reward functions that
+satisfies this requirement exists (Skalse et al., 2023).
+For this reason, over the years, several algorithmic
+criteria have been introduced to address this ambiguity
+issue. These criteria includes maximum margin
+(Ratliff et al., 2006), Bayesian approaches (Ramachandran
+and Amir, 2007), maximum entropy (Ziebart
+et al., 2008), and many others (e.g., Majumdar et al.,
+2017; Metelli et al., 2017; Zeng et al., 2022). More
+recently, a new line of works have circumvented the
+ambiguity issue by redefining the IRL task as the problem
+of estimating the entire feasible reward set (Metelli
+et al., 2021; Lindner et al., 2022; Metelli et al., 2023).
+
+\href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
+
+IRL allows one to recover the expert's reward function and then to use this to construct desirable behavior. \citet{ng2000algorithms} suggests that the reward function provides a much more frugal description of behavior. 
+
+Reinforcement learning is founded on the hypothesis that a reward function is a transferable definition of the task, which if rightly defined helps an RL algorithm learn the \textit{policy}. 
+
+\subsubsection{Formal definition}
+The inverse reinforcement learning (IRL) problem is formally stated as follows \citep{ng2000algorithms}:
+
+\textbf{Given} 1) measurements of an agent's behavior over time, in a variety of circumstances, 2) if needed, measurements of the sensory inputs to that agent; 3) if available, a model of the environment.
+
+\textbf{Determine} the reward function being optimized
+
+\subsubsection{Algorithm}
+\begin{enumerate}
+	\item see \citep{sasaki2020} Behavioral cloning from noisy demonstrations - for algo and loss functions
+	
+	\item  \cite{Pomerleau1991} -- original BC - Pomerleau 1991 Behavioural Cloning
+	\item fromt medium article below -- The simplest form of imitation learning is behaviour cloning (BC), which focuses on learning the expert’s policy using supervised learning. An important example of behaviour cloning is ALVINN, a vehicle equipped with sensors, which learned to map the sensor inputs into steering angles and drive autonomously. This project was carried out in 1989 by Dean Pomerleau, and it was also the first application of imitation learning in general.
+	
+	\item BEHAVIORAL CLONING FROM NOISY DEMONSTRATIONS
+	
+	\item TORABI - IJCAI 18
+	\item also see Stanford article
+	\item Simple IRL \href{https://smartlabai.medium.com/a-brief-overview-of-imitation-learning-8a8a75c44a9c}{Medium article}.
+	\item DAGGER original \href{https://www.ri.cmu.edu/pub_files/2011/4/Ross-AISTATS11-NoRegret.pdf}{article} and algo
+\end{enumerate}
+
+
+Behavioural Cloning
+The simplest form of imitation learning is behaviour cloning (BC), which focuses on learning the expert’s policy using supervised learning. An important example of behaviour cloning is ALVINN, a vehicle equipped with sensors, which learned to map the sensor inputs into steering angles and drive autonomously. This project was carried out in 1989 by Dean Pomerleau, and it was also the first application of imitation learning in general.
+
+The way behavioural cloning works is quite simple. Given the expert’s demonstrations, we divide these into state-action pairs, we treat these pairs as i.i.d. examples and finally, we apply supervised learning. The loss function can depend on the application. Therefore, the algorithm is the following:
+
+In some applications, behavioural cloning can work excellently. For the majority of the cases, though, behavioural cloning can be quite problematic. The main reason for this is the i.i.d. assumption: while supervised learning assumes that the state-action pairs are distributed i.i.d., in MDP an action in a given state induces the next state, which breaks the previous assumption. This also means, that errors made in different states add up, therefore a mistake made by the agent can easily put it into a state that the expert has never visited and the agent has never trained on. In such states, the behaviour is undefined and this can lead to catastrophic failures.
+
+simple
+1. Collect demonstrations (t* trajectories) from expert
+2. Treat the demonstrations as i.i.d. state-action pairs: (so, ao), (sj, aj), ...
+3. Learn Tte policy using supervised learning by minimizing the loss function
+L(a*,To(s))
+
+Still, behavioural cloning can work quite well in certain applications. Its main advantages are its simplicity and efficiency. Suitable applications can be those, where we don’t need long-term planning, the expert’s trajectories can cover the state space, and where committing an error doesn’t lead to fatal consequences. However, we should avoid using BC when any of these characteristics are true.
+
+Direct Policy Learning (via Interactive Demonstrator)
+Direct policy learning (DPL) is basically an improved version of behavioural cloning. This iterative method assumes, that we have access to an interactive demonstrator at training time, who we can query. Just like in BC, we collect some demonstrations from the expert, and we apply supervised learning to learn a policy. We roll out this policy in our environment, and we query the expert to evaluate the roll-out trajectory. In this way, we get more training data, which we feedback to supervised learning. This loop continues until we converge.
+
+The way the general DPL algorithm works is the following. First, we start with an initial predictor policy based on the initial expert demonstrations. Then, we execute a loop until we converge. In each iteration, we collect trajectories by rolling out the current policy (which we obtained in the previous iteration) and using these we estimate the state distribution. Then, for every state, we collect feedback from the expert (what would have he done in the same state). Finally, we train a new policy using this feedback.
+
+To make the algorithm work efficiently, it is important to use all the previous training data during the teaching, so that the agent “remembers” all the mistakes it made in the past. There are several algorithms to achieve this, in this article I introduce two them: Data Aggregation and Policy Aggregation. Data aggregation trains the actual policy on all the previous training data. Meanwhile, policy aggregation trains a policy on the training data received on the last iteration and then combines this policy with all the previous policies using geometric blending. In the next iteration, we use this newly obtained, blended policy during the roll-out. Both methods are convergent, in the end, we receive a policy which is not much worse than the expert. More information about these methods can be found here.
+
+The full algorithm is the following:
+
+
+
+\begin{algorithm}
+	\onehalfspacing
+	\caption{DAgger} 
+	\begin{algorithmic}[1]
+		\State {Initialize $\mathcal{D} \leftarrow \theta$}
+		\State {Initialize $\hat{\pi}_{1}$ to any policy in $\Pi$}
+		\For {i=1 to N}
+		\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_{i}$}
+		\State {Sample T-step trajectories using $\pi_i$}
+		\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
+		and actions given by expert.
+		\State {Aggregate datasets: $\mathcal{D}$}\\
+		\EndFor 
+	\end{algorithmic} 
+\end{algorithm}
+
+\begin{algorithm}
+	\caption{Behavioral cloning algorithm}\label{algo:BC}
+	\begin{algorithmic}[1]
+		\Initialize {model $\mathcal{M}_\theta$ as a random approximator}\\
+		Set {$\pi_\phi$ to be a random policy}\\
+		Set {$I = |\mathcal{I}^{pre}| $}
+		% \While{policy improvement} \Do
+		%     \For {time-step $t=1$ to $I$ \do 
+			
+			% \EndWhile
+		\end{algorithmic}
+	\end{algorithm}
+	
+	
+	\section{TO-DO}
+	
+	1. SLR \\
+	2. IRL - general concepts and notes \\
+	3. Taxonomy \\
+	4. NOTES on BC , other techhniuwues\\
+	5. Tutorial \\
+	========== 5.1 environment description\\
+	========== 5.2 data  description\\
+	========== flow of tutoria; \\
+	
+	6. Table of hyper-parms / nw archtecture\\
+	
+	
+	
+	\clearpage
+	
+	\section{Approach}
+	
+	1. \textbf{Tutorial}: Use IEEE Access paper (\href{https://ieeexplore.ieee.org/document/9086464}{see below}) - as basis of writing a Tut paper\\
+	2. \textbf{IRL}: For solid IRL basics, \textbf{survey}, \textbf{challenges} and \hlc{selecting},  algo. math - see - Saurabh 2020 - A Survey of Inverse Reinforcement Learning: Challenges, Methods and Progress. Also see basic --- Algorithm 1: Template for IRL \\
+	3. \textbf{IRL in simple terms}: Find better simple language than this --  See "simple" language and \textbf{KEY STEPS AND ALGO.} in (\href{https://thegradient.pub/learning-from-humans-what-is-inverse-reinforcement-learning/}{The Gradient}) \\
+	4. IRL - AndrewNg article - for IRL basic language and ref. 
+	
+	\subsection{FIND BETTER SIMPLE language than this =--- }
+	
+	\textbf{key steps are algorithm are to:}
+	\begin{itemize}
+		\item Estimate the value of our optimal policy for the initial state, as well as the value of every generated policy 	by taking the average cumulative reward of many randomly sampled trials.
+		
+		\item Generate an estimate of the reward function by solving a linear programming problem. Specifically, set to maximize the difference between our optimal policy and each of the other generated policies.
+		
+		\item After a large number of iterations, end the algorithm at this step.
+		
+		\item Otherwise, use a standard RL algorithm to find the optimal policy for. This policy may be different from the given optimal policy, since our estimated reward function is not necessarily identical to the reward function we are searching for.
+		
+		\item Add the newly generated policy to the set of candidate policies, and repeat the procedure.
+	\end{itemize}
+	
+	
+	\section{TUTORIAL PAPER}
+	
+	IEEE Access tuturial paper -- \href{https://ieeexplore.ieee.org/document/9086464}{A Tutorial and Future Research for Building a Blockchain-Based Secure Communication Scheme for Internet of Intelligent Things} 
+	
+	2 column x 15 pgs. paper
+	
+	\textbf{TUTORIAL Elements}:\\
+	1. Algo of Consensus mech\\
+	2. pg. 11 Table 3 Simulation params - machine info etc\\
+	3. pg. 11 E. PRACTICAL DEMONSTRATION - -also contains Java code snippets\\
+	4. only 2 impacts analye d - imapct of no. users and no. blocks \\
+	5. computation time for number of users\\
+	
+	
+	
+	
+	
+	
+	pg. 1. Abstract: "In this paper, we propose a tutorial that aims in desiging a generalized blockchain"\\
+	pg. 5: Table 1 - Summary of Algos\\
+	pg. 6: Motivation - "In this tutorial work, we propose a generalized blockchainbased secure communication scheme, mainly from the authentication key management perspective point of view, for IoIT environments."\\\\
+	pg. 6: "C. MAIN CONTRIBUTIONS":\\\\
+	The contributions of this paper are listed below.\\
+	- The impact of blockchain on the existing communication environments is discussed.\\
+	- The details of different types of blockchain are provided. Some of the famous consensus algorithms are also discussed.\\
+	- We propose a blockchain-based, secure communication scheme for the Internet of Intelligent Things (IoIT).\\
+	- The different applications of blockchain-based IoIT communication environments are discussed.\\
+	- Network and attack models for blockchain-based IoIT communication environments are described, which are helpful in designing a security protocol for such communication environments.\\
+	- A practical demonstration of the proposed scheme is conducted in order to measure the impact of the proposed scheme on the performance of essential parameters.\\
+	- Finally, future research challenges in blockchain-based IoIT communication environments are highlighted, which will be helpful to future researchers.\\
+	
+	\section{WORDS-SMITH}
+	To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of
+	
+	
+	\textbf{Paper: Automated Anomaly Detection via Curiosity-Guided Search and Self-Imitation Learning}\\
+	- Specifically, we first design a curiosity-guided search strategy to overcome the curse of local optimality\\
+	- A controller, which acts as a search agent, is encouraged to take actions to maximize the information gain about the controller's internal belief.\\
+	- We further introduce an experience replay mechanism based on self-imitation learning to improve the sample efficiency\\
+	
+	Reinforcement learning has established itself as an \hlc{transformative force in the realm of xxx, demonstrating their versatility and efficacy across a variety of applications. The ability to model complex data distributions and generate high-quality samples has made xx particularly effective in tasks such as image generation and reinforcement learning. The paper first provides a basic background of GDMs and their applications in network optimization. This is followed by a series of case studies, showcasing the integration of GDMs with Deep Reinforcement Learning (DRL), These case studies underscore the practicality and efficacy of GDMs in real-world scenarios, offering insights into network design. We conclude with a discussion on potential future directions for GDM research and applications, providing major insights into how they can continue to shape the future of network optimization.}
+	
+	
+	\hlc{The contributions of this paper are summarized as follows:}\\
+	• We identify a novel and challenging problem (i.e., automated outlier detection) and propose a generic framework AutoOD. To the best of our knowledge, AutoOD describes the first attempt to incorporate AutoML with an outlier detection task, and one of the first to extend AutoML concepts into applications from data mining fields.\\
+	• We carefully design a search space specifically tailored to the automated outlier detection problem, covering architecture settings, outlier definitions, and the corresponding objective functions.\\
+	• We propose a curiosity-guided search strategy to overcome the curse of local optimality and stabilize search process\\
+	• We introduce an experience replay mechanism based on the self-imitation learning to improve the sample efficiency.\\
+	• We conduct extensive experiments on eight benchmark datasets to demonstrate the effectiveness of AutoOD, and provide insights on how to incorporate AutoOD to the realworld scenarios.\\
+	
+	
+	\subsection{Citations}
+	
+	\citep{Tabatabaie2021}: \citefield{Tabatabaie2021}{title}
+	\cite{Wang2023} \\
+	\citet{Mao2018-1928}\\
+	\citep{Wabartha2020-2140}\\
+	
+	\begingroup
+	\setlength{\tabcolsep}{6pt}
+	\begin{table}[h!]
+		\centering
+		\renewcommand{\arraystretch}{2} 
+		
+		\begin{tabular}{L{4cm} L{4cm} L{6cm}}	
+			\textbf{Article} & \textbf{Application domain} & \textbf{Use-case}\\
+			\midrule[0.005pt]
+			\citet{Pinciroli2022-752} & Wind farms & Suggest maintenance actions \\
+			\citet{Mao2018-1928}, 	 & Wind farms & Suggest maintenance actions \\
+			\midrule[0.01pt]
+		\end{tabular}
+		\caption{Articles using Imitation Learning for predictive maintenance.}
+		\label{tbl:SLR}
+	\end{table}
+	\endgroup	
+	
+	
+	\section{SAMPLE ABSTRACTS}
+	
+	
+	\subsubsection{Castro Tome - Event-Driven Data Acquisition for Electricity Metering: A Tutorial}
+	``\hlc{Here, our objective is to provide a comprehensive tutorial of improvements in EDM based on the (algorithmic) definition of the events in a semantic manner, considering also different types of filters and individual definition of thresholds.}``\\ \\
+	
+	Abstract—This paper provides a tutorial on the most recent advances of event-driven metering (EDM) while indicating potential extensions to improve its performance. We have revisited the effects on signal reconstruction of (i) a fine-tuned procedure for defining power variation events, (ii) consecutive-measurements filtering that refers to the same event, (iii) spike filtering, and (iv) timeout parameter. We have illustrated via extensive numerical results that EDM can provide high-fidelity signal reconstruction while decreasing the overall number of acquired measurements to be transmitted. Its main advantage is to only store samples that are informative based on predetermined events, avoiding redundancy and decreasing the traffic offered to the underlying communication network. This tutorial highlights the key advantages of EDMand points out promising research directions.
+	
+	Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
+	\clearpage
+	\section{Acronyms and notations}
+	\begin{table}[h]
+		\renewcommand\arraystretch{1.5}
+		\caption{Notation}
+		\begin{tabular}{@{} l L{12cm} @{}}
+			$S$&Set of all valid states\\
+			$A$&Set of all valid actions\\
+			$s_t$&State\\
+			$s'$, $s_{(t+1)}$& Next state\\
+			$a_t$&Action\\
+			$a'$, $a_{(t+1)}$& Next action\\
+			$P$, $P(s'\mid s,a)$&Probability distribution of state transitions\\
+			$R(t)$&Reward function\\
+			$\gamma$ & Discount factor\\
+			$\pi_{\theta}$ & Policy $\pi$ with learnable parameters $\theta$\\
+			$V^{\pi}(s)$ & Value function\\
+			$Q^{\pi}(s, a)$&Action-value function (Q value)\\ \\
+			\multicolumn{2}{l}{\textbf{Notations -- \cite{Osa-2018}}}\\\midrule
+			$x$ & system state\\
+			$s$ & context\\
+			$\phi$ & feature vector\\
+			$u$ & Predictive maintenance action\\
+			$\tau$ & trajectory\\
+			$\pi$ & Policy\\
+			$D$ & dataset of demonstrations\\
+			$q$ & probability distribution induced by an expert’s policy\\
+			$p$ & probability distribution induced by a learner’s policy\\
+			$t$ & time\\
+			$T$ & finite horizon\\
+			$N$ & number of demonstrations\\
+			$E$ & superscript representing an expert e.g. $\pi^E$ denotes an expert`s policy\\
+			$L$ & superscript representing a learner e.g. $\pi^L$  denotes a learner’s policy\\
+			$demo$ & superscript representing a demonstration by an expert $\tau^{demo}$ denotes a trajectory demonstrated by an expert\\
+			
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[h]
+		\renewcommand\arraystretch{1.05}
+		\begin{center}
+			\begin{minipage}{\textwidth}
+				\caption{Acronyms}
+				\begin{tabular}{@{} l L{4cm} l L{4cm} @{}}
+					\multicolumn{4}{l}{\textbf{Maintenance related terms:}}\\\midrule
+					CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
+					EoL& End-of-life & KPI&Key Performance Indicator\\
+					MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
+					PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
+					PHM& Prognostic Health Management&PM & Preventive Maintenance\\
+					RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
+					SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\
+					
+					\multicolumn{4}{l}{\textbf{Algorithms:}} \\ \midrule
+					CNN&Convoluted Neural Network&LSTM&Long Short Term Memory\\
+					A-C& Actor-Critic&PG&Policy Gradient methods\\
+					DDPG&Deep Deterministic Policy Gradient&PPO&Proximal Policy Optimization\\
+					DQN&Deep Q-Network&DDQN&Double Deep Q-Network\\ \\
+					
+					\multicolumn{4}{l}{\textbf{Reinforcement Learning:}}\\\midrule
+					ML & Machine Learning&RL & Reinforcement Learning\\
+					MDP & Markov Decision Process&HM-MDP & Hidden-Mode MDP\\
+					POMDP & Partially Observable MDP&SMDP & Semi-MDP\\ \\
+					% \botrule
+				\end{tabular}
+			\end{minipage}
+		\end{center}
+	\end{table}
+	
+	\clearpage
+	\printbibliography %Prints bibliography
+	
+\end{document}

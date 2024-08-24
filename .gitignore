@@ -8,3 +8,14 @@ images/
 results/
 tensorboard/
 *.csv
+Article/images/
+Article/*.bib
+Article/*.aux
+Article/*.log
+Article/*.out
+Article/*.pdf
+Article/*.xml
+Article/*.gz
+Article/*-blx.bib
+Article/*.synctex.gz
+Article/*.run.xml
