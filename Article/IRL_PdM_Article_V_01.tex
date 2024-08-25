@@ -82,11 +82,52 @@ For a given task, permissible actions are often pre-determined. Creating a good 
 
 Application of RL to the field of PdM has been covered in surveys such as \cite{Erhan2021Smart, Ren2021, Barja-Martinez2021, panzer2022, siraskar2023}
 
-\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance\footnote{}. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles. 
+\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles. 
 
-\subsubsection{Inverse RL}
+\subsection{Taxonomy}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\linewidth]{images/IRL_Taxonomy.png}
+	\caption{Taxonomy of Imitation Learning techniques.}
+	\label{fig:taxonomy}
+\end{figure}
+
+\section{Inverse RL}
+
 It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
 While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
+
+
+\hlc{STANFORD} : Direct quote --- \hlc{"There are generally two approaches to imitation learning: the first is to directly
+learn how to imitate the expert’s policy and the second is to indirectly
+imitate the policy by instead learning the expert’s reward function. This chapter
+will first introduce two classical approaches to imitation learning (behavior
+cloning and the DAgger algorithm) that focus on directly imitating the policy.
+Then a set of approaches for learning the expert’s reward function will be discussed,
+which is commonly referred to as inverse reinforcement learning. The
+chapter will then conclude with a couple of short discussions into related topics
+on learning from experts (e.g. through comparisons or physical feedback) as
+well as on interaction-aware control"}
+
+\subsection{Formulation}
+
+The formulation of the Imitation Learning problem is on similar lines to the RL formulation. As in RL, the system is assumed to obey the Markov property and is therefore a Markov Decision Process (MDP). The system dynamics follow a probabilistic transition model governed by \ref{eq:p} i.e. the conditional probability distribution over $s_t$, given the previous action and environment's state. 
+
+Our goal is to generate a predictive maintenance \textit{policy} $\pi$, that reproduces the expertise of the predictive maintenance engineer.
+
+\begin{equation}\label{eq:p}
+	p(s_t \mid s_{t-1}, a_{t-1})
+\end{equation}
+
+The expert's demonstrations are represented as a trajectory $\tau = [\psi_0, ..., \psi_T]$. Where $\psi$ is the set of features. For a predictive maintenance problem, this could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
+
+In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
+
+\subsection{Taxonomy}
+
+
+
 \begin{enumerate}
 	\item Dagger - original paper \cite{Dagger-Ross2010}
 	\item CHAI - \cite{CHAI}
@@ -100,7 +141,6 @@ A history $h = (s_1, a_1, . . . , a_T, s_{T+1})$ (\hlc{add a nice Figure! $\righ
 \end{equation}
 
 \hlc{WordsSmith} ``\textit{This can be accomplished through learning from demonstration, also known as imitation learning. A key principle of imitation learning is that while it may be very difficult to quantify why a certain behavior is desirable, the actual correct behavior is usually known by a human expert. Therefore, rather than having a human expert tune a system to achieve desired behavior, the expert can emonstrate desired behavior and the robot can tune itself to match the demonstration}``
-
 
 
 
@@ -121,7 +161,7 @@ The maturity of sensor network technologies has facilitated the emergence of an 
 
 \cite{Pinciroli2022-752}: Pinciroli Optimization of the Operation and Maintenance of renewable energy systems by Deep Reinforcement Learning
 
-Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (O&M). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the O&M optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
+Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (OM). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the OM optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
 
 
 
@@ -382,7 +422,7 @@ The full algorithm is the following:
 			$u$ & Predictive maintenance action\\
 			$\tau$ & trajectory\\
 			$\pi$ & Policy\\
-			$D$ & dataset of demonstrations\\
+			$\mathcal{D}$ & dataset of demonstrations\\
 			$q$ & probability distribution induced by an expert’s policy\\
 			$p$ & probability distribution induced by a learner’s policy\\
 			$t$ & time\\
