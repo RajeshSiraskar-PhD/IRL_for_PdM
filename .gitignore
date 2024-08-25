@@ -10,6 +10,8 @@ tensorboard/
 *.csv
 Article/images/
 Article/*.aux
+Article/*.bbl
+Article/*.blg
 Article/*.log
 Article/*.out
 Article/*.pdf
