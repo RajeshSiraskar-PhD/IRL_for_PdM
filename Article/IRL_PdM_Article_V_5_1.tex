@@ -84,24 +84,47 @@
 	
 	\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles. 
 	
-	\subsection{Taxonomy}
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.75\linewidth]{images/IRL_Taxonomy.png}
-		\caption{Taxonomy of Imitation Learning techniques.}
-		\label{fig:taxonomy}
-	\end{figure}
-	
 	\section{Inverse RL}
 	
 	It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
 	While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
 	
 	
+	\subsection{Formulation} % $$$
+	
+	The formulation of the Imitation Learning (IL) problem is on similar lines to the RL formulation. Most texts, cover RL first and then explain IL. In this article we intend to focus on IL and therefore do not delve into theoretical RL concepts. General RL fundamentals are best covered in \citep{sutton2018, stanford-lectures}. The authors have covered RL concepts in \cite{siraskar2023}, focused toward the industrial practioners and predictive maintenance in particular\footnote{Refer section ``14.1 Practitioners guide to implementation'', \citep{siraskar2023}, for practical guidelines to implement RL for predictive maintenance.}.  
+	
+	To gain a \textit{high-level} theoretical understanding of IL, we take the approach of understanding them side-by-side, in a single uninterrupted flow. In addition, we define terms with respect to the predictive maintenance problem, to help practioners appreciate the concepts better. 
+	
+	As in RL, the system is assumed to obey the Markov property and is therefore a Markov Decision Process (MDP). The system dynamics follow a probabilistic transition model governed by \eqref{eq:p} i.e. the conditional probability distribution over $s_t$, given the previous action and environment's state. For a predictive maintenance problem the system state could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
+	\begin{equation}\label{eq:p}
+		p(s_t \mid s_{t-1}, a_{t-1})
+	\end{equation}
+	
+	In RL, see figure \ref{fig:RL}, there exists a reward function \eqref{eq:R}, defined by the Reinforcement Learning design engineer, that can compute a reward $r$, at every time step, given the state and action taken.
+	\begin{equation}\label{eq:R}
+		r_t = R(s_t, a_t)
+	\end{equation}
+	
+	By interacting with the environment, the goal for an RL algorithm is to accumulate the highest possible reward, over the episode. An episode is a session of interaction with the environment, where the agent learns via trial-and-error. Generally, the session ends either due to a terminal state -- an example of a terminal state is reaching the end-of-life of a tool or premature breakage of the tool. Finally, when the training ends, we want to learn and generate a predictive maintenance \textit{policy}, denoted by $\pi$ \eqref{eq:pi}, that can predict or suggest the predictive maintenance action to take, given a particular state.
+	\begin{equation}\label{eq:pi}
+		a_t = \pi(s_t).
+	\end{equation}
+	
+	For an IL problem setting, it is the reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\zeta$ is a sequence of state-action pairs:
+	\begin{equation}\label{eq:demo}
+		\zeta = \{(s_0, a_0), (s_1, a_1), ...\},
+	\end{equation}
+	where these pairs are governed by the expert's policy, denoted by $\pi^{*}$. 	
+	The imitation learning problem is therefore to generate a predictive maintenance policy $\pi$ that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
+	
+	\hlc{PLACEMENT}: Reward ambiguity is the primary challenge associated with inverse reinforcement learning, \citep{ng2000algorithms, stanford-lectures, baheri2023}.
+	
+	%In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
+	
 	\subsection{Behavioral Cloning} 
 	\textcolor{red}{Paraphrased/reworded-from \cite{yue2018imitation}}
-	In the simplest form, Behavioral Cloning is equivalent to supervised learning, where $P^* = P(s\mid\pi^*)$ is the distribution of states visited by the expert. The learning objective is given by \ref{eq:bcobj}, \cite{yue2018imitation}. 
+	In the simplest form, Behavioral Cloning is equivalent to supervised learning, where $P^* = P(s\mid\pi^*)$ is the distribution of states visited by the expert. The learning objective is given by \eqref{eq:bcobj}, \cite{yue2018imitation}. 
 	
 	Interpretations of the algorithm:
 	\begin{itemize}
@@ -109,18 +132,15 @@
 		\item As in the optimization step of supervised learning, the algorithm minimizes the deviation compared to expert trajectories, at every step (i.e. minimize the 1-step error).
 	\end{itemize}
 	
-	
 	\begin{equation}\label{eq:bcobj}
 		argmin_\theta E(s,a^*) \sim P^* L(a^*, \pi_{\theta}(s))	
 	\end{equation}
 	
-	
-	\textbf{Inverse RL} is to learn the reward function $r$, such that it satisfies \ref{eq:IRL}, \cite{yue2018imitation}.
+	\textbf{Inverse RL} is to learn the reward function $r$, such that it satisfies \eqref{eq:IRL}, \cite{yue2018imitation}.
 	
 	\begin{equation}\label{eq:IRL}
 		\pi^* = argmax_\theta E(s) \sim P(s\mid\theta)r(s,\pi_{theta}(s))
 	\end{equation}
-	
 	
 	\begingroup
 	\setlength{\tabcolsep}{6pt}
@@ -154,46 +174,16 @@
 		on learning from experts (e.g. through comparisons or physical feedback) as
 		well as on interaction-aware control"}
 	
-	\subsection{Formulation} % $$$
+	\subsection{Taxonomy}
 	
-	The formulation of the Imitation Learning (IL) problem is on similar lines to the RL formulation. Most texts, cover RL first and then explain IL. In this article we intend to focus on IL and therefore do not delve into theoretical RL concepts. General RL fundamentals are best covered in \citep{sutton2018, stanford-lectures}. The authors have covered RL concepts in \cite{siraskar2023}, focused toward the industrial practioners and predictive maintenance in particular\footnote{Refer section ``14.1 Practitioners guide to implementation'', \citep{siraskar2023}, for practical guidelines to implement RL for predictive maintenance.}.  
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=0.75\linewidth]{images/IRL_Taxonomy.png}
+		\caption{Taxonomy of Imitation Learning techniques.}
+		\label{fig:taxonomy}
+	\end{figure}
 	
-	To gain a \textit{high-level} theoretical understanding of IL, we take the approach of understanding them side-by-side, in a single uninterrupted flow. In addition, we define terms with respect to the predictive maintenance problem, to help practioners appreciate the concepts better. 
-	
-	As in RL, the system is assumed to obey the Markov property and is therefore a Markov Decision Process (MDP). The system dynamics follow a probabilistic transition model governed by \ref{eq:p} i.e. the conditional probability distribution over $s_t$, given the previous action and environment's state. 
-	
-	\begin{equation}\label{eq:p}
-		p(s_t \mid s_{t-1}, a_{t-1})
-	\end{equation}
-	
-	In RL, see figure \ref{fig:RL}, there exists a reward function, defined by the Reinforcement Learning design engineer, that can compute a reward $r$, at every time step, given the state and action taken.
-	
-	\begin{equation}\label{eq:R}
-		r_t = R(s_t, a_t)
-	\end{equation}
-	
-	By interacting with the environment, the goal is to accumulate the highest possible reward, over the episode. An episode is a session of interaction with the environment, where the agent learns via trial-and-error. Generally, the session ends either due to a terminal state -- an example of a terminal state is reaching the end-of-life of a tool or premature breakage of the tool.
-	
-	For an IL problem setting, it is exactly this reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\zeta$ is a \hlc{sequence (NOTE - LINK TO BEING NON SEQUENC)} of state-action pairs:
-	\begin{equation}\label{eq:demo}
-		\zeta = \{(s_0, a_0), (s_1, a_1), ...\}
-	\end{equation}
-	
-	
-	
-	Where $\psi$ is the set of features. For a predictive maintenance problem, this could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
-	
-	% $$$ FROM OSA \cite{Osa-2018} These demonstrations are represented as a trajectory $\tau = [\psi_0, ..., \psi_T]$. Where $\psi$ is the set of features. For a predictive maintenance problem, this could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
-	
-	In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
-	
-	Our goal is to generate a predictive maintenance \textit{policy} $\pi$, that reproduces the expertise of the predictive maintenance engineer, given by \ref{eq:pi}.
-	
-	\begin{equation}\label{eq:pi}
-		\pi(s_t)
-	\end{equation}
-	
-	
+		
 	
 	\subsection{Taxonomy}
 	
