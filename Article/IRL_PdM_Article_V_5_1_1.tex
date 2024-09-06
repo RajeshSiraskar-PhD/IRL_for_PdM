@@ -1,4 +1,4 @@
-%% Transfered from H-PC. 05-Sep. 11am
+%% Transfered from O-PC. 06-Sep. 11am
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
 \usepackage[style=authoryear, backend=bibtex, natbib]{biblatex}
@@ -111,23 +111,45 @@ By interacting with the environment, the goal for an RL algorithm is to accumula
 	a_t = \pi(s_t).
 \end{equation}
 
-For an IL problem setting, it is the reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\zeta$ is a sequence of state-action pairs:
+For an IL problem setting, it is the reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\xi$ is a sequence of state-action pairs:
 \begin{equation}\label{eq:demo}
-	\zeta = \{(s_0, a_0), (s_1, a_1), ...\},
+	\xi = \{(s_0, a_0), (s_1, a_1), ...\},
 \end{equation}
 where these pairs are governed by the expert's policy, denoted by $\pi^{*}$.
 
-The goal of an imitation learning problem is therefore -- generate a predictive maintenance policy $\pi$ that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
+Stated formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\xi_0, \xi_1, \xi_2, ... \xi_D\}$, from an expert policy  $\pi^{*}$ to find a policy $\hat{\pi}^{*}$ that imitates the expert policy.
 
-% $$$
-Formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\zeta_0, \zeta_1, \zeta_2, ... \zeta_D\}$, from an expert policy  $\pi^{*}$ to find a policy  $\hat{\pi}^{*}$ that imitates the expert policy.
+In the industrial maintenance context, the objective of imitation learning is to generate a predictive maintenance policy $\pi$ (simpler form of the $\hat{\pi}^{*}$, where the $\hat{}$ is the statistical designation of an estimated value) that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
 
 \hlc{PLACEMENT}: Reward ambiguity is the primary challenge associated with inverse reinforcement learning, \citep{ng2000algorithms, stanford-lectures, baheri2023}.
 
 %In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
 
-\subsection{Behavioral Cloning} 
-\textcolor{red}{Paraphrased/reworded-from \cite{yue2018imitation}}
+\subsection{Imitation Learning approaches} 
+
+%% $$ YET TO PARAPHRASE  from Stanford Lectures
+Imitation Learning approaches can be classified into two primary approaches: in the first we directly learn to imitate the expert's policy and in the second we \textit{indirectly} imitate the policy by attempting to learn the expert's \textit{reward function}. 
+
+%% In this section we first outline the two classical approaches to imitation learning (behavior cloning and the DAgger algorithm) that focus on directly imitating the policy. This is followed by Then a set of approaches for learning the expert’s reward function will be discussed, which is commonly referred to as inverse reinforcement learning. The chapter will then conclude with a couple of short discussions into related topics on learning from experts (e.g. through comparisons or physical feedback) as well as on interaction-aware control"}rajra
+	
+\subsection{Behavioral Cloning}
+
+Behavioral Cloning \cite{BC-bain1995}
+
+Having an expert generate a set of demonstrations $\xi \in \mathcal{D}$, Behavioral Cloning approaches determine a policy $\pi$ that imitates the expert. In the simplest form, this can be accomplished through supervised learning techniques, where the goal is to solve the optimization problem \eqref{eq:BC} i.e. to minimize the difference between the learned policy and expert demonstrations, using a cost or loss function $L$, \citep{stanford-lectures}.  
+
+\begin{equation}\label{eq:BC}
+	\hat{\pi}^* = \arg\min_{\pi} \sum_{\xi \in \mathcal{D}} \sum_{s \in \xi} L(\pi(s), \pi^*(s)),
+\end{equation}
+where $L$ is the loss function, $\pi^*(s)$ is the expert's predictive maintenance policy that suggests the maintenance action for the state $s$, and $\hat{\pi}^*$ is the learned, often approximated, policy. 
+
+
+
+
+In practice, different loss functions are used depending on the form of the policy: $p$-norms (e.g. for $p=2$ the $p$-norm is the Euclidean norm) or $f$-divergences (e.g. KL divergence). \\ \\
+
+Additional content from \cite{yue2018imitation}
+
 In the simplest form, Behavioral Cloning is equivalent to supervised learning, where $P^* = P(s\mid\pi^*)$ is the distribution of states visited by the expert. The learning objective is given by \eqref{eq:bcobj}, \cite{yue2018imitation}. 
 
 Interpretations of the algorithm:
@@ -167,16 +189,7 @@ Interpretations of the algorithm:
 \end{table}
 \endgroup
 
-\hlc{STANFORD} : Direct quote --- \hlc{"There are generally two approaches to imitation learning: the first is to directly
-	learn how to imitate the expert’s policy and the second is to indirectly
-	imitate the policy by instead learning the expert’s reward function. This chapter
-	will first introduce two classical approaches to imitation learning (behavior
-	cloning and the DAgger algorithm) that focus on directly imitating the policy.
-	Then a set of approaches for learning the expert’s reward function will be discussed,
-	which is commonly referred to as inverse reinforcement learning. The
-	chapter will then conclude with a couple of short discussions into related topics
-	on learning from experts (e.g. through comparisons or physical feedback) as
-	well as on interaction-aware control"}
+
 
 \subsection{Taxonomy}
 
@@ -237,7 +250,7 @@ The maturity of sensor network technologies has facilitated the emergence of an 
 
 \cite{Pinciroli2022-752}: Pinciroli Optimization of the Operation and Maintenance of renewable energy systems by Deep Reinforcement Learning
 
-Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (OM). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the OM optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
+%Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (OM). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the OM optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
 
 
 
