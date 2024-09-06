@@ -55,14 +55,29 @@
 		\item Maximum Entropy Inverse Reinforcement Learning
 		\item Learning From Comparisons and Physical Feedback
 	\end{itemize}
-	\item \cite{Osa-2018} \href{https://arxiv.org/pdf/1811.06711}{An Algorithmic Perspective on Imitation Learning} 188 pgs Bible! UNIFORM notation for all algos. images, illustrations etc. Also \hlc{comparison of Supervised learning vs Imitation learning}!!!
+	\item \cite{Osa-2018} - Algorithmic Perspective on IL - see images/illustrations etc.
+	\begin{enumerate}
+		\item Pg. 17, Sec. 1.3 
+		\hlc{Key Differences between Imitation Learning and Supervised Learning} -- "For example, when transferring human skills to a humanoid robot, the motion captured from a human expert may be infeasible for the humanoid. In such a case, the demonstrated motion needs to be adapted to be feasible for the humanoid. This kind
+		of adaptation is less common in the standard supervised learning"
+		\item In imitation
+		learning, the demonstration dataset does not cover all possible
+		situations since collecting expert demonstrations to cover all situations
+		is usually too expensive and time-consuming. As a result, the learner
+		often encounters states which were not encountered by the expert during
+		demonstrations, which means that the target domain distribution is
+		different from the source distribution. Therefore, covariate shift or domain
+		adaptation is closely related to imitation learning [Bagnell, 2015].
+		\item \hlc {prior knowledge that allows for dramatically more efficient methods. Recent work by} \cite{sun2017} \hlc{demonstrates a potentially exponential decrease in sample complexity in learning a task by imitation rather than by trial-and-error reinforcement learning, and
+		empirical results have long shown such benefits} \cite{abbeel2010autonomous} [Silver et al., 2016, Kober and Peters, 2009, Abbeel et al., 2010].
+	\end{enumerate}
 	\item \href{https://underactuated.mit.edu/imitation.html#:~:text=Broadly%20speaking%2C%20most%20approaches%20to,the%20data%20using%20supervised%20learning.}{Russ Tedrake MIT lecture \citep{TedrakeLecture2023}} - \hlc{USE \textbf{ONLY} for this quote and cite. Else } -- ``BC is interesting! used from LLM OPEN AI to the shortest path to building `robot foundation models`"  and for the opening para "Broadly speaking, most approaches to imitation learning can be categorized as either behavior cloning (BC) or inverse reinforcement learning (IRL). Behavior cloning attempts to learn a policy directly from the data using supervised learning. Inverse RL (aka inverse optimal control) attempts to learn a cost function from the data, and then uses potentially more traditional optimal control approaches to synthesize a policy for this cost function, in the hopes of generalizing significantly beyond the demonstration data"
 	\item \href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
 \end{enumerate}
 \begin{enumerate}
 	\item \cite{torabi2018BCO} -- BC from observation only: Possibly in the ``future direction'' section: [This is already my words] While BC provided a good introduction to imitation learning and is a simple algorithm, \cite{torabi2018BCO} provides an interesting algorithm, named BCO($\alpha$), that allows quick learning from observations \textit{only} (i.e., \textit{without} explicit action information. This is achieved using a two-step process.
 \end{enumerate}
-
+\clearpage
 \section{Introduction}
 Reinforcement Learning (RL) is a machine learning technique that mimics the trial-and-error learning mechanism humans and animals use to learn a new task. A 'task' is a 'problem' such as learning to play chess, or for a robot painting, assembling automotive components is a task. The task we will focus on will be ``predictive maintenance''. The core elements of RL are shown in Figure \ref{fig:RL}.
 \begin{figure}[h]
@@ -133,8 +148,14 @@ Imitation Learning approaches can be classified into two primary approaches: in 
 %% In this section we first outline the two classical approaches to imitation learning (behavior cloning and the DAgger algorithm) that focus on directly imitating the policy. This is followed by Then a set of approaches for learning the expert’s reward function will be discussed, which is commonly referred to as inverse reinforcement learning. The chapter will then conclude with a couple of short discussions into related topics on learning from experts (e.g. through comparisons or physical feedback) as well as on interaction-aware control"}rajra
 	
 \subsection{Behavioral Cloning}
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{images/BC_Diagram.png}
+	\caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
+	\label{fig:BC}
+\end{figure}
 
-Behavioral Cloning \cite{BC-bain1995}
+Behavioral Cloning - original paper \cite{BC-bain1995}
 
 Having an expert generate a set of demonstrations $\xi \in \mathcal{D}$, Behavioral Cloning approaches determine a policy $\pi$ that imitates the expert. In the simplest form, this can be accomplished through supervised learning techniques, where the goal is to solve the optimization problem \eqref{eq:BC} i.e. to minimize the difference between the learned policy and expert demonstrations, using a cost or loss function $L$, \citep{stanford-lectures}.  
 
