@@ -1,4 +1,4 @@
-%% MOHOPADA-H-PC work 10:37am
+%% MOHOPADA-H-PC work 09-Sep 10:00am
 %% NOTES: Stanford lecs used capital Xi \Xi for demonstrations, I've used \mathcal{D} 
 %% Transfered from H-PC MOHOPADA 08-Sep. 10:20 am
 
@@ -197,16 +197,57 @@ In simple terms the BC algorithm \citep{yue2018imitation}:
 
 As laid out in figure \ref{fig:BC}, the learning processes depends solely on the set of demonstrations provided by the expert. It is often difficult for the experts to cover the entire state space, if they do not uniformly sample the state space or provide samples according to convenience.
 
-In an industrial maintenance situation this could happen, if for example, the expert picks a certain time of day and a short time period within the entire span of equipment or tool life to provide the demonstrations $\mathcal{D}$.  This will result in a \textit{temporal sequence} of states and actions with a particular distribution. The learned policy will then perform poorly when faced with states not present in $\mathcal{D}$. Behavioral cloning will then \textit{estimate} the policy ${\hat{\pi}}^*$ with its own slightly different distribution of states and these states  that will be visited. The algorithm then begins to drift at every step of learning, leading to compounding errors. This is a major challenge in imitation learning, \citep{yue2018imitation, stanford-lectures}. \textcolor{red}{PLACEMENT -- the importance of randomly sampling and non sequential examples - also PROVIDE DIAGRAM!} 
-
-
-
-\begin{figure}
-\centering
-\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
-\caption{Distributional mismatch}
-\label{fig:BCprob}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
+	\caption{Distributional mismatch}
+	\label{fig:DistribShift}
 \end{figure}
+
+In an industrial maintenance situation this could happen, if for example, the expert picks a certain time of day and a short time period within the entire span of equipment or tool life to provide the demonstrations $\mathcal{D}$.  This will result in a \textit{temporal sequence} of states and actions with a particular distribution. The learned policy will then perform poorly when faced with states not present in $\mathcal{D}$. Behavioral cloning will then \textit{estimate} the policy ${\hat{\pi}}^*$ with its own slightly different distribution of states and these states  that will be visited. The algorithm then begins to drift at every step of learning, leading to compounding errors. This ``distributional shift'', Fig. \ref{fig:DistribShift}, is a major challenge in imitation learning, \citep{yue2018imitation, stanford-lectures}. \textcolor{red}{PLACEMENT -- the importance of randomly sampling and non sequential examples - also PROVIDE DIAGRAM!} 
+
+\cite{Dagger-Ross2010} overcame this core limitation of distributional mismatch in states, by devising the DAgger (Dataset Aggregation) algorithm. It augments existing demonstrations with new expert data when the learned policy ${\hat{\pi}}^*$ leads to states that are not present in the expert dataset $\mathcal{D}$, the expert is queried for more data. 
+
+\begin{algorithm}\label{algorithm:DAgger}
+	\onehalfspacing
+	\caption{DAgger Dataset Aggregation algorithm, \cite{stanford-lectures}} 
+	\begin{algorithmic}[1]
+		\State {Data: $\pi^*$}
+		\State {Result: $\hat{\pi}^*$}
+		\State {Initialize $\mathcal{D} \leftarrow 0$}
+		\State {Initialize $\hat{\pi}$}
+		\For {i=1 to N}
+			\State {$\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}$}
+			\State {Rollout policy $\pi_i$ to sample trajectory $\tau = \{s_0, s_1, ..., s_T\}$ }
+			\State {Query expert $\pi^*$ and generate dataset $\mathcal{D}_i = \{(s_0, \pi^*(s_0)), (s_1, \pi^*(s_1)), ..., (s_T, \pi^*(s_T))\}$}
+			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i $}
+			\State {Retrain policy $\hat{\pi}$ using aggregated dataset $\mathcal{D}$}
+		\EndFor
+		\State {Return $\hat{\pi}$}
+	\end{algorithmic} 
+\end{algorithm}
+
+\textcolor{red}{From ROSS: In other words, DAGGER proceeds by collecting a dataset 	at each iteration under the current policy and trains the next 	policy under the aggregate of all collected datasets. The intuition 	behind this algorithm is that over the iterations, we 	are building up the set of inputs that the learned policy is 	likely to encounter during its execution based on previous experience (training iterations).}
+
+Notation: $\Pi$ is the set of policies the learner is considering and $T$ the time horizon of the task.
+
+\begin{algorithm}\label{algorithm:DAgger-Ross}
+	\onehalfspacing
+	\caption{DAgger Dataset Aggregation algorithm, \cite{Dagger-Ross2010}} 
+	\begin{algorithmic}[1]
+		\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
+		\State {Initialize $\hat{\pi}_1$ to any policy in $\Pi$}
+		\For {i=1 to N}
+			\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
+			\State {Sample $T$-step trajectories using $\pi_i$}
+			\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
+			\State {and actions given by expert}
+			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i$}
+			\State {Train policy $\hat{\pi}_{i+1}$ on $\mathcal{D}$}
+		\EndFor
+		\State {Return best $\hat{\pi}_i$ on validation.}
+	\end{algorithmic} 
+\end{algorithm}
 
 % $$$ Additional content from YUE and LE 2018 -- \citep{yue2018imitation}
 %
@@ -344,6 +385,7 @@ The inverse reinforcement learning (IRL) problem is formally stated as follows \
 \item DAGGER original \href{https://www.ri.cmu.edu/pub_files/2011/4/Ross-AISTATS11-NoRegret.pdf}{article} and algo
 \end{enumerate}
 
+\textcolor{red}{FROM MEDIUM ARTICLE:}\href{https://smartlabai.medium.com/a-brief-overview-of-imitation-learning-8a8a75c44a9c}{smartlabai}.
 
 Behavioural Cloning
 The simplest form of imitation learning is behaviour cloning (BC), which focuses on learning the expert’s policy using supervised learning. An important example of behaviour cloning is ALVINN, a vehicle equipped with sensors, which learned to map the sensor inputs into steering angles and drive autonomously. This project was carried out in 1989 by Dean Pomerleau, and it was also the first application of imitation learning in general.
@@ -371,34 +413,6 @@ The full algorithm is the following:
 
 
 
-\begin{algorithm}
-\onehalfspacing
-\caption{DAgger} 
-\begin{algorithmic}[1]
-	\State {Initialize $\mathcal{D} \leftarrow \theta$}
-	\State {Initialize $\hat{\pi}_{1}$ to any policy in $\Pi$}
-	\For {i=1 to N}
-	\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_{i}$}
-	\State {Sample T-step trajectories using $\pi_i$}
-	\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
-	and actions given by expert.
-	\State {Aggregate datasets: $\mathcal{D}$}\\
-	\EndFor 
-\end{algorithmic} 
-\end{algorithm}
-
-\begin{algorithm}
-\caption{Behavioral cloning algorithm}\label{algo:BC}
-\begin{algorithmic}[1]
-	\Initialize {model $\mathcal{M}_\theta$ as a random approximator}\\
-	Set {$\pi_\phi$ to be a random policy}\\
-	Set {$I = |\mathcal{I}^{pre}| $}
-	% \While{policy improvement} \Do
-	%     \For {time-step $t=1$ to $I$ \do 
-		
-		% \EndWhile
-	\end{algorithmic}
-\end{algorithm}
 
 
 \section{TO-DO}
