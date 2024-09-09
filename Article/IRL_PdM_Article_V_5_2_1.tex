@@ -1,4 +1,7 @@
-%% Transfered from O-PC. 06-Sep. 11am
+%% MOHOPADA-H-PC work 10:37am
+%% NOTES: Stanford lecs used capital Xi \Xi for demonstrations, I've used \mathcal{D} 
+%% Transfered from H-PC MOHOPADA 08-Sep. 10:20 am
+
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
 \usepackage[style=authoryear, backend=bibtex, natbib]{biblatex}
@@ -45,7 +48,15 @@
 \end{abstract}
 
 \clearpage
-\section{IMPORTANT REFS}
+\section{APPROACH}
+\begin{enumerate}
+	\item Tech background: First finish STANFORD
+	\item \qquad BC - only - max Dagger - rest say beyond scope
+	\item Survey!
+	\item \qquad Taxonomy --- Stanford lec + OSA + 1 survey is enough
+	\item Tutorial!
+\end{enumerate}
+\subsection{IMPORTANT REFS}
 \begin{enumerate}
 	\item \href{https://web.stanford.edu/class/cs237b/pdfs/lecture/cs237b_lecture_12.pdf}{Stanford lecture} -- 14 pgs - SOLID foundation - use to sort out terms:
 	\begin{itemize}
@@ -70,7 +81,7 @@
 		different from the source distribution. Therefore, covariate shift or domain
 		adaptation is closely related to imitation learning [Bagnell, 2015].
 		\item \hlc {prior knowledge that allows for dramatically more efficient methods. Recent work by} \cite{sun2017} \hlc{demonstrates a potentially exponential decrease in sample complexity in learning a task by imitation rather than by trial-and-error reinforcement learning, and
-		empirical results have long shown such benefits} \cite{abbeel2010autonomous} [Silver et al., 2016, Kober and Peters, 2009, Abbeel et al., 2010].
+			empirical results have long shown such benefits} \cite{abbeel2010autonomous} [Silver et al., 2016, Kober and Peters, 2009, Abbeel et al., 2010].
 	\end{enumerate}
 	\item \href{https://underactuated.mit.edu/imitation.html#:~:text=Broadly%20speaking%2C%20most%20approaches%20to,the%20data%20using%20supervised%20learning.}{Russ Tedrake MIT lecture \citep{TedrakeLecture2023}} - \hlc{USE \textbf{ONLY} for this quote and cite. Else } -- ``BC is interesting! used from LLM OPEN AI to the shortest path to building `robot foundation models`"  and for the opening para "Broadly speaking, most approaches to imitation learning can be categorized as either behavior cloning (BC) or inverse reinforcement learning (IRL). Behavior cloning attempts to learn a policy directly from the data using supervised learning. Inverse RL (aka inverse optimal control) attempts to learn a cost function from the data, and then uses potentially more traditional optimal control approaches to synthesize a policy for this cost function, in the hopes of generalizing significantly beyond the demonstration data"
 	\item \href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
@@ -150,44 +161,52 @@ In the industrial maintenance context, the objective of imitation learning is to
 
 \subsection{Imitation Learning approaches} 
 
-%% $$ YET TO PARAPHRASE  from Stanford Lectures
 Imitation Learning approaches can be classified into two primary approaches: in the first we directly learn to imitate the expert's policy and in the second we \textit{indirectly} imitate the policy by attempting to learn the expert's \textit{reward function}. 
 
 %% In this section we first outline the two classical approaches to imitation learning (behavior cloning and the DAgger algorithm) that focus on directly imitating the policy. This is followed by Then a set of approaches for learning the expert’s reward function will be discussed, which is commonly referred to as inverse reinforcement learning. The chapter will then conclude with a couple of short discussions into related topics on learning from experts (e.g. through comparisons or physical feedback) as well as on interaction-aware control"}
-	
+
 \subsection{Behavioral Cloning}
+
+The concept of learning from demonstrations for first conceptualized in '\citefield{BC-bain1995}{title}' by \cite{BC-bain1995}. Their seminal work was grounded around control theory. They defined behavioral cloning as the process of logging data from skilled, human operators, and providing these as inputs to an induction program which produces a control strategy ('policy' in RL terminology) for a complex control task. They defined the output of the cloning process as a set of ``situation-action'' rules \textcolor{red}{mapping the current state of the process being controlled to a set of actions that achieve some desired goal}.
+
 \begin{figure}
-	\centering
-	\includegraphics[width=\linewidth]{images/BC_Diagram.png}
-	\caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
-	\label{fig:BC}
+\centering
+\includegraphics[width=\linewidth]{images/BC_Diagram.png}
+\caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
+\label{fig:BC}
 \end{figure}
-
-\cite{BC-bain1995} conceptualized Behavioral Cloning. They defined behavioral cloning as the process of logging data from skilled, human operators, and providing these as inputs to an induction program which produces a control strategy ('policy' in RL terminology) for a complex control task.
-
-\textcolor{red}{Behavioural cloning has been successfully used to construct control systems in a number of domains (Michie et al, 1990; Sammut et al, 1992; Urbancic Bratko, 1994). Clones are built by recording the performance of a skilled
-human operator and then running an induction algorithm over the traces
-of the behaviour. The most basic form of behavioural cloning results in a
-set of situation-action rules that map the current state of the process being
-controlled to a set of actions that achieve some desired goal.}
 
 Having an expert generate a set of demonstrations $\xi \in \mathcal{D}$, Behavioral Cloning approaches determine a policy $\pi$ that imitates the expert. In the simplest form, this can be accomplished through supervised learning techniques \citep{abbeel2004apprenticeship, yue2018imitation}, where the goal is to solve the optimization problem \eqref{eq:BC} i.e. to minimize the difference between the learned policy and expert demonstrations, using a cost or loss function $L$, \citep{stanford-lectures}.  
 
 \begin{equation}\label{eq:BC}
-	\hat{\pi}^* = \arg\min_{\pi} \sum_{\xi \in \mathcal{D}} \sum_{s \in \xi} L(\pi(s), \pi^*(s)),
+\hat{\pi}^* = \arg\min_{\pi} \sum_{\xi \in \mathcal{D}} \sum_{s \in \xi} L(\pi(s), \pi^*(s)),
 \end{equation}
 where $L$ is the loss function, $\pi^*(s)$ is the expert's predictive maintenance policy that suggests the maintenance action for the state $s$, and $\hat{\pi}^*$ is the learned, often approximated, policy.
 
-In practice, different loss functions are used depending on the form of the policy: $p$-norms (e.g. Euclidean norm when $p=2$) or $f$-divergences (e.g. KL divergence).\\
+In practice, different loss functions are used depending on the form of the policy: $p$-norms (e.g. Euclidean norm when $p=2$) or $f$-divergences (e.g. KL divergence).
 
-
+%% $$$
+\subsubsection{Practical implications of BC}
 \hlc{WordSmith} from \cite{reddy2019sqil} SQIL paper--``\textit{BC is a simple approach that seeks to imitate the expert’s actions using supervised learning – in particular, greedily maximizing the conditional likelihood of the demonstrated actions given the demonstrated states, without reasoning about the consequences of actions}''
-	
-Interpretations of the algorithm,  \citep{yue2018imitation}:
+
+In simple terms the BC algorithm \citep{yue2018imitation}:
 \begin{itemize}
-	\item At time-step, $t$ assumes imitation has been perfect so far $(t-1)$, and continue to obediently clone or copy the imitating.
-	\item As in the optimization step of supervised learning, the algorithm minimizes the deviation compared to expert trajectories, at every step (i.e. minimize the 1-step error).
+\item At time-step, $t$ assumes imitation has been perfect so far $(t-1)$, and continue to obediently clone or copy the imitating.
+\item As in the optimization step of supervised learning, the algorithm minimizes the deviation compared to expert trajectories, at every step (i.e. minimize the 1-step error).
 \end{itemize}
+
+As laid out in figure \ref{fig:BC}, the learning processes depends solely on the set of demonstrations provided by the expert. It is often difficult for the experts to cover the entire state space, if they do not uniformly sample the state space or provide samples according to convenience.
+
+In an industrial maintenance situation this could happen, if for example, the expert picks a certain time of day and a short time period within the entire span of equipment or tool life to provide the demonstrations $\mathcal{D}$.  This will result in a \textit{temporal sequence} of states and actions with a particular distribution. The learned policy will then perform poorly when faced with states not present in $\mathcal{D}$. Behavioral cloning will then \textit{estimate} the policy ${\hat{\pi}}^*$ with its own slightly different distribution of states and these states  that will be visited. The algorithm then begins to drift at every step of learning, leading to compounding errors. This is a major challenge in imitation learning, \citep{yue2018imitation, stanford-lectures}. \textcolor{red}{PLACEMENT -- the importance of randomly sampling and non sequential examples - also PROVIDE DIAGRAM!} 
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
+\caption{Distributional mismatch}
+\label{fig:BCprob}
+\end{figure}
 
 % $$$ Additional content from YUE and LE 2018 -- \citep{yue2018imitation}
 %
@@ -203,48 +222,46 @@ Interpretations of the algorithm,  \citep{yue2018imitation}:
 \begingroup
 \setlength{\tabcolsep}{6pt}
 \begin{table}[h!]
-	\centering
-	\renewcommand{\arraystretch}{1.5} 
-	\begin{tabular}{L{6cm} L{3cm} L{3cm}}
-		\midrule[0.01pt]
-		& \textbf{Behavioural Cloning} & \textbf{Inverse Reinforcement Learning}\\
-		\midrule[0.01pt]
-		Direct policy learning & Yes & No \\
-		Reward learning & No & Yes \\
-		Access to environment & No & Yes \\
-		Pre-collected expert demonstrations & Yes & Yes \\
-		Need for interactive demonstrator & No & No \\
-		\midrule[0.01pt]
-	\end{tabular}
-	\caption{Types of Imitation Learning, \cite{yue2018imitation}}
-	\label{tbl:BC_IRL}
+\centering
+\renewcommand{\arraystretch}{1.5} 
+\begin{tabular}{L{6cm} L{3cm} L{3cm}}
+	\midrule[0.01pt]
+	& \textbf{Behavioural Cloning} & \textbf{Inverse Reinforcement Learning}\\
+	\midrule[0.01pt]
+	Direct policy learning & Yes & No \\
+	Reward learning & No & Yes \\
+	Access to environment & No & Yes \\
+	Pre-collected expert demonstrations & Yes & Yes \\
+	Need for interactive demonstrator & No & No \\
+	\midrule[0.01pt]
+\end{tabular}
+\caption{Types of Imitation Learning, \cite{yue2018imitation}}
+\label{tbl:BC_IRL}
 \end{table}
 \endgroup
-
-
 
 \subsection{Taxonomy}
 
 \begin{figure}[h]
-	\centering
-	\includegraphics[width=0.75\linewidth]{images/IRL_Taxonomy.png}
-	\caption{Taxonomy of Imitation Learning techniques.}
-	\label{fig:taxonomy}
+\centering
+\includegraphics[width=0.75\linewidth]{images/IRL_Taxonomy.png}
+\caption{Taxonomy of Imitation Learning techniques.}
+\label{fig:taxonomy}
 \end{figure}
 
 \subsection{Taxonomy}
 
 \begin{enumerate}
-	\item Dagger - original paper \cite{Dagger-Ross2010}
-	\item CHAI - \cite{CHAI}
-	\item imitation algos -- \cite{imitation-algos}
+\item Dagger - original paper \cite{Dagger-Ross2010}
+\item CHAI - \cite{CHAI}
+\item imitation algos -- \cite{imitation-algos}
 \end{enumerate}
 \par
 
 \hlc{WordSmith from}: \cite{berant2015imitation} -- To introduce adding the PdM..."To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of"\\
 A history $h = (s_1, a_1, . . . , a_T, s_{T+1})$ (\hlc{add a nice Figure! $\rightarrow$ SEE THE COMPRESSED HISTORY section in this article - as it mentions NON sequentioal }) is a sequence of states and actions, such that ... The policy for choosing predictive maintenance actions induces a distribution over histories \\
 \begin{equation}
-	p_{\theta}(h) = \prod^{T}_{t=1} p_\theta (a_t \mid s_t)    
+p_{\theta}(h) = \prod^{T}_{t=1} p_\theta (a_t \mid s_t)    
 \end{equation}
 
 \hlc{WordsSmith} ``\textit{This can be accomplished through learning from demonstration, also known as imitation learning. A key principle of imitation learning is that while it may be very difficult to quantify why a certain behavior is desirable, the actual correct behavior is usually known by a human expert. Therefore, rather than having a human expert tune a system to achieve desired behavior, the expert can emonstrate desired behavior and the robot can tune itself to match the demonstration}``
@@ -314,17 +331,17 @@ The inverse reinforcement learning (IRL) problem is formally stated as follows \
 
 \subsubsection{Algorithm}
 \begin{enumerate}
-	\item see \citep{sasaki2020} Behavioral cloning from noisy demonstrations - for algo and loss functions
-	
-	\item  \cite{Pomerleau1991} -- original BC - Pomerleau 1991 Behavioural Cloning
-	\item fromt medium article below -- The simplest form of imitation learning is behaviour cloning (BC), which focuses on learning the expert’s policy using supervised learning. An important example of behaviour cloning is ALVINN, a vehicle equipped with sensors, which learned to map the sensor inputs into steering angles and drive autonomously. This project was carried out in 1989 by Dean Pomerleau, and it was also the first application of imitation learning in general.
-	
-	\item BEHAVIORAL CLONING FROM NOISY DEMONSTRATIONS
-	
-	\item TORABI - IJCAI 18
-	\item also see Stanford article
-	\item Simple IRL \href{https://smartlabai.medium.com/a-brief-overview-of-imitation-learning-8a8a75c44a9c}{Medium article}.
-	\item DAGGER original \href{https://www.ri.cmu.edu/pub_files/2011/4/Ross-AISTATS11-NoRegret.pdf}{article} and algo
+\item see \citep{sasaki2020} Behavioral cloning from noisy demonstrations - for algo and loss functions
+
+\item  \cite{Pomerleau1991} -- original BC - Pomerleau 1991 Behavioural Cloning
+\item fromt medium article below -- The simplest form of imitation learning is behaviour cloning (BC), which focuses on learning the expert’s policy using supervised learning. An important example of behaviour cloning is ALVINN, a vehicle equipped with sensors, which learned to map the sensor inputs into steering angles and drive autonomously. This project was carried out in 1989 by Dean Pomerleau, and it was also the first application of imitation learning in general.
+
+\item BEHAVIORAL CLONING FROM NOISY DEMONSTRATIONS
+
+\item TORABI - IJCAI 18
+\item also see Stanford article
+\item Simple IRL \href{https://smartlabai.medium.com/a-brief-overview-of-imitation-learning-8a8a75c44a9c}{Medium article}.
+\item DAGGER original \href{https://www.ri.cmu.edu/pub_files/2011/4/Ross-AISTATS11-NoRegret.pdf}{article} and algo
 \end{enumerate}
 
 
@@ -355,231 +372,231 @@ The full algorithm is the following:
 
 
 \begin{algorithm}
-	\onehalfspacing
-	\caption{DAgger} 
-	\begin{algorithmic}[1]
-		\State {Initialize $\mathcal{D} \leftarrow \theta$}
-		\State {Initialize $\hat{\pi}_{1}$ to any policy in $\Pi$}
-		\For {i=1 to N}
-		\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_{i}$}
-		\State {Sample T-step trajectories using $\pi_i$}
-		\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
-		and actions given by expert.
-		\State {Aggregate datasets: $\mathcal{D}$}\\
-		\EndFor 
-	\end{algorithmic} 
+\onehalfspacing
+\caption{DAgger} 
+\begin{algorithmic}[1]
+	\State {Initialize $\mathcal{D} \leftarrow \theta$}
+	\State {Initialize $\hat{\pi}_{1}$ to any policy in $\Pi$}
+	\For {i=1 to N}
+	\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_{i}$}
+	\State {Sample T-step trajectories using $\pi_i$}
+	\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
+	and actions given by expert.
+	\State {Aggregate datasets: $\mathcal{D}$}\\
+	\EndFor 
+\end{algorithmic} 
 \end{algorithm}
 
 \begin{algorithm}
-	\caption{Behavioral cloning algorithm}\label{algo:BC}
-	\begin{algorithmic}[1]
-		\Initialize {model $\mathcal{M}_\theta$ as a random approximator}\\
-		Set {$\pi_\phi$ to be a random policy}\\
-		Set {$I = |\mathcal{I}^{pre}| $}
-		% \While{policy improvement} \Do
-		%     \For {time-step $t=1$ to $I$ \do 
-			
-			% \EndWhile
-		\end{algorithmic}
-	\end{algorithm}
-	
-	
-	\section{TO-DO}
-	
-	1. SLR \\
-	2. IRL - general concepts and notes \\
-	3. Taxonomy \\
-	4. NOTES on BC , other techhniuwues\\
-	5. Tutorial \\
-	========== 5.1 environment description\\
-	========== 5.2 data  description\\
-	========== flow of tutoria; \\
-	
-	6. Table of hyper-parms / nw archtecture\\
-	
-	
-	
-	\clearpage
-	
-	\section{Approach}
-	
-	1. \textbf{Tutorial}: Use IEEE Access paper (\href{https://ieeexplore.ieee.org/document/9086464}{see below}) - as basis of writing a Tut paper\\
-	2. \textbf{IRL}: For solid IRL basics, \textbf{survey}, \textbf{challenges} and \hlc{selecting},  algo. math - see - Saurabh 2020 - A Survey of Inverse Reinforcement Learning: Challenges, Methods and Progress. Also see basic --- Algorithm 1: Template for IRL \\
-	3. \textbf{IRL in simple terms}: Find better simple language than this --  See "simple" language and \textbf{KEY STEPS AND ALGO.} in (\href{https://thegradient.pub/learning-from-humans-what-is-inverse-reinforcement-learning/}{The Gradient}) \\
-	4. IRL - AndrewNg article - for IRL basic language and ref. 
-	
-	\subsection{FIND BETTER SIMPLE language than this =--- }
-	
-	\textbf{key steps are algorithm are to:}
-	\begin{itemize}
-		\item Estimate the value of our optimal policy for the initial state, as well as the value of every generated policy 	by taking the average cumulative reward of many randomly sampled trials.
+\caption{Behavioral cloning algorithm}\label{algo:BC}
+\begin{algorithmic}[1]
+	\Initialize {model $\mathcal{M}_\theta$ as a random approximator}\\
+	Set {$\pi_\phi$ to be a random policy}\\
+	Set {$I = |\mathcal{I}^{pre}| $}
+	% \While{policy improvement} \Do
+	%     \For {time-step $t=1$ to $I$ \do 
 		
-		\item Generate an estimate of the reward function by solving a linear programming problem. Specifically, set to maximize the difference between our optimal policy and each of the other generated policies.
+		% \EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+
+\section{TO-DO}
+
+1. SLR \\
+2. IRL - general concepts and notes \\
+3. Taxonomy \\
+4. NOTES on BC , other techhniuwues\\
+5. Tutorial \\
+========== 5.1 environment description\\
+========== 5.2 data  description\\
+========== flow of tutoria; \\
+
+6. Table of hyper-parms / nw archtecture\\
+
+
+
+\clearpage
+
+\section{Approach}
+
+1. \textbf{Tutorial}: Use IEEE Access paper (\href{https://ieeexplore.ieee.org/document/9086464}{see below}) - as basis of writing a Tut paper\\
+2. \textbf{IRL}: For solid IRL basics, \textbf{survey}, \textbf{challenges} and \hlc{selecting},  algo. math - see - Saurabh 2020 - A Survey of Inverse Reinforcement Learning: Challenges, Methods and Progress. Also see basic --- Algorithm 1: Template for IRL \\
+3. \textbf{IRL in simple terms}: Find better simple language than this --  See "simple" language and \textbf{KEY STEPS AND ALGO.} in (\href{https://thegradient.pub/learning-from-humans-what-is-inverse-reinforcement-learning/}{The Gradient}) \\
+4. IRL - AndrewNg article - for IRL basic language and ref. 
+
+\subsection{FIND BETTER SIMPLE language than this =--- }
+
+\textbf{key steps are algorithm are to:}
+\begin{itemize}
+	\item Estimate the value of our optimal policy for the initial state, as well as the value of every generated policy 	by taking the average cumulative reward of many randomly sampled trials.
+	
+	\item Generate an estimate of the reward function by solving a linear programming problem. Specifically, set to maximize the difference between our optimal policy and each of the other generated policies.
+	
+	\item After a large number of iterations, end the algorithm at this step.
+	
+	\item Otherwise, use a standard RL algorithm to find the optimal policy for. This policy may be different from the given optimal policy, since our estimated reward function is not necessarily identical to the reward function we are searching for.
+	
+	\item Add the newly generated policy to the set of candidate policies, and repeat the procedure.
+\end{itemize}
+
+
+\section{TUTORIAL PAPER}
+
+IEEE Access tuturial paper -- \href{https://ieeexplore.ieee.org/document/9086464}{A Tutorial and Future Research for Building a Blockchain-Based Secure Communication Scheme for Internet of Intelligent Things} 
+
+2 column x 15 pgs. paper
+
+\textbf{TUTORIAL Elements}:\\
+1. Algo of Consensus mech\\
+2. pg. 11 Table 3 Simulation params - machine info etc\\
+3. pg. 11 E. PRACTICAL DEMONSTRATION - -also contains Java code snippets\\
+4. only 2 impacts analye d - imapct of no. users and no. blocks \\
+5. computation time for number of users\\
+
+
+
+
+
+
+pg. 1. Abstract: "In this paper, we propose a tutorial that aims in desiging a generalized blockchain"\\
+pg. 5: Table 1 - Summary of Algos\\
+pg. 6: Motivation - "In this tutorial work, we propose a generalized blockchainbased secure communication scheme, mainly from the authentication key management perspective point of view, for IoIT environments."\\\\
+pg. 6: "C. MAIN CONTRIBUTIONS":\\\\
+The contributions of this paper are listed below.\\
+- The impact of blockchain on the existing communication environments is discussed.\\
+- The details of different types of blockchain are provided. Some of the famous consensus algorithms are also discussed.\\
+- We propose a blockchain-based, secure communication scheme for the Internet of Intelligent Things (IoIT).\\
+- The different applications of blockchain-based IoIT communication environments are discussed.\\
+- Network and attack models for blockchain-based IoIT communication environments are described, which are helpful in designing a security protocol for such communication environments.\\
+- A practical demonstration of the proposed scheme is conducted in order to measure the impact of the proposed scheme on the performance of essential parameters.\\
+- Finally, future research challenges in blockchain-based IoIT communication environments are highlighted, which will be helpful to future researchers.\\
+
+\section{WORDS-SMITH}
+To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of
+
+
+\textbf{Paper: Automated Anomaly Detection via Curiosity-Guided Search and Self-Imitation Learning}\\
+- Specifically, we first design a curiosity-guided search strategy to overcome the curse of local optimality\\
+- A controller, which acts as a search agent, is encouraged to take actions to maximize the information gain about the controller's internal belief.\\
+- We further introduce an experience replay mechanism based on self-imitation learning to improve the sample efficiency\\
+
+Reinforcement learning has established itself as an \hlc{transformative force in the realm of xxx, demonstrating their versatility and efficacy across a variety of applications. The ability to model complex data distributions and generate high-quality samples has made xx particularly effective in tasks such as image generation and reinforcement learning. The paper first provides a basic background of GDMs and their applications in network optimization. This is followed by a series of case studies, showcasing the integration of GDMs with Deep Reinforcement Learning (DRL), These case studies underscore the practicality and efficacy of GDMs in real-world scenarios, offering insights into network design. We conclude with a discussion on potential future directions for GDM research and applications, providing major insights into how they can continue to shape the future of network optimization.}
+
+
+\hlc{The contributions of this paper are summarized as follows:}\\
+• We identify a novel and challenging problem (i.e., automated outlier detection) and propose a generic framework AutoOD. To the best of our knowledge, AutoOD describes the first attempt to incorporate AutoML with an outlier detection task, and one of the first to extend AutoML concepts into applications from data mining fields.\\
+• We carefully design a search space specifically tailored to the automated outlier detection problem, covering architecture settings, outlier definitions, and the corresponding objective functions.\\
+• We propose a curiosity-guided search strategy to overcome the curse of local optimality and stabilize search process\\
+• We introduce an experience replay mechanism based on the self-imitation learning to improve the sample efficiency.\\
+• We conduct extensive experiments on eight benchmark datasets to demonstrate the effectiveness of AutoOD, and provide insights on how to incorporate AutoOD to the realworld scenarios.\\
+
+
+\subsection{Citations}
+
+\citep{Tabatabaie2021}: \citefield{Tabatabaie2021}{title}
+\cite{Wang2023} \\
+\citet{Mao2018-1928}\\
+\citep{Wabartha2020-2140}\\
+
+\begingroup
+\setlength{\tabcolsep}{6pt}
+\begin{table}[h!]
+	\centering
+	\renewcommand{\arraystretch}{2} 
+	
+	\begin{tabular}{L{4cm} L{4cm} L{6cm}}	
+		\textbf{Article} & \textbf{Application domain} & \textbf{Use-case}\\
+		\midrule[0.005pt]
+		\citet{Pinciroli2022-752} & Wind farms & Suggest maintenance actions \\
+		\citet{Mao2018-1928}, 	 & Wind farms & Suggest maintenance actions \\
+		\midrule[0.01pt]
+	\end{tabular}
+	\caption{Articles using Imitation Learning for predictive maintenance.}
+	\label{tbl:SLR}
+\end{table}
+\endgroup	
+
+
+\section{SAMPLE ABSTRACTS}
+
+
+\subsubsection{Castro Tome - Event-Driven Data Acquisition for Electricity Metering: A Tutorial}
+``\hlc{Here, our objective is to provide a comprehensive tutorial of improvements in EDM based on the (algorithmic) definition of the events in a semantic manner, considering also different types of filters and individual definition of thresholds.}``\\ \\
+
+Abstract—This paper provides a tutorial on the most recent advances of event-driven metering (EDM) while indicating potential extensions to improve its performance. We have revisited the effects on signal reconstruction of (i) a fine-tuned procedure for defining power variation events, (ii) consecutive-measurements filtering that refers to the same event, (iii) spike filtering, and (iv) timeout parameter. We have illustrated via extensive numerical results that EDM can provide high-fidelity signal reconstruction while decreasing the overall number of acquired measurements to be transmitted. Its main advantage is to only store samples that are informative based on predetermined events, avoiding redundancy and decreasing the traffic offered to the underlying communication network. This tutorial highlights the key advantages of EDMand points out promising research directions.
+
+Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
+\clearpage
+\section{Acronyms and notations}
+\begin{table}[h]
+	\renewcommand\arraystretch{1.5}
+	\caption{Notation}
+	\begin{tabular}{@{} l L{12cm} @{}}
+		$S$&Set of all valid states\\
+		$A$&Set of all valid actions\\
+		$s_t$&State\\
+		$s'$, $s_{(t+1)}$& Next state\\
+		$a_t$&Action\\
+		$a'$, $a_{(t+1)}$& Next action\\
+		$P$, $P(s'\mid s,a)$&Probability distribution of state transitions\\
+		$R(t)$&Reward function\\
+		$\gamma$ & Discount factor\\
+		$\pi_{\theta}$ & Policy $\pi$ with learnable parameters $\theta$\\
+		$V^{\pi}(s)$ & Value function\\
+		$Q^{\pi}(s, a)$&Action-value function (Q value)\\ \\
+		\multicolumn{2}{l}{\textbf{Notations -- \cite{Osa-2018}}}\\\midrule
+		$x$ & system state\\
+		$s$ & context\\
+		$\phi$ & feature vector\\
+		$u$ & Predictive maintenance action\\
+		$\tau$ & trajectory\\
+		$\pi$ & Policy\\
+		$\mathcal{D}$ & dataset of demonstrations\\
+		$q$ & probability distribution induced by an expert’s policy\\
+		$p$ & probability distribution induced by a learner’s policy\\
+		$t$ & time\\
+		$T$ & finite horizon\\
+		$N$ & number of demonstrations\\
+		$E$ & superscript representing an expert e.g. $\pi^E$ denotes an expert`s policy\\
+		$L$ & superscript representing a learner e.g. $\pi^L$  denotes a learner’s policy\\
+		$demo$ & superscript representing a demonstration by an expert $\tau^{demo}$ denotes a trajectory demonstrated by an expert\\
 		
-		\item After a large number of iterations, end the algorithm at this step.
-		
-		\item Otherwise, use a standard RL algorithm to find the optimal policy for. This policy may be different from the given optimal policy, since our estimated reward function is not necessarily identical to the reward function we are searching for.
-		
-		\item Add the newly generated policy to the set of candidate policies, and repeat the procedure.
-	\end{itemize}
-	
-	
-	\section{TUTORIAL PAPER}
-	
-	IEEE Access tuturial paper -- \href{https://ieeexplore.ieee.org/document/9086464}{A Tutorial and Future Research for Building a Blockchain-Based Secure Communication Scheme for Internet of Intelligent Things} 
-	
-	2 column x 15 pgs. paper
-	
-	\textbf{TUTORIAL Elements}:\\
-	1. Algo of Consensus mech\\
-	2. pg. 11 Table 3 Simulation params - machine info etc\\
-	3. pg. 11 E. PRACTICAL DEMONSTRATION - -also contains Java code snippets\\
-	4. only 2 impacts analye d - imapct of no. users and no. blocks \\
-	5. computation time for number of users\\
-	
-	
-	
-	
-	
-	
-	pg. 1. Abstract: "In this paper, we propose a tutorial that aims in desiging a generalized blockchain"\\
-	pg. 5: Table 1 - Summary of Algos\\
-	pg. 6: Motivation - "In this tutorial work, we propose a generalized blockchainbased secure communication scheme, mainly from the authentication key management perspective point of view, for IoIT environments."\\\\
-	pg. 6: "C. MAIN CONTRIBUTIONS":\\\\
-	The contributions of this paper are listed below.\\
-	- The impact of blockchain on the existing communication environments is discussed.\\
-	- The details of different types of blockchain are provided. Some of the famous consensus algorithms are also discussed.\\
-	- We propose a blockchain-based, secure communication scheme for the Internet of Intelligent Things (IoIT).\\
-	- The different applications of blockchain-based IoIT communication environments are discussed.\\
-	- Network and attack models for blockchain-based IoIT communication environments are described, which are helpful in designing a security protocol for such communication environments.\\
-	- A practical demonstration of the proposed scheme is conducted in order to measure the impact of the proposed scheme on the performance of essential parameters.\\
-	- Finally, future research challenges in blockchain-based IoIT communication environments are highlighted, which will be helpful to future researchers.\\
-	
-	\section{WORDS-SMITH}
-	To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of
-	
-	
-	\textbf{Paper: Automated Anomaly Detection via Curiosity-Guided Search and Self-Imitation Learning}\\
-	- Specifically, we first design a curiosity-guided search strategy to overcome the curse of local optimality\\
-	- A controller, which acts as a search agent, is encouraged to take actions to maximize the information gain about the controller's internal belief.\\
-	- We further introduce an experience replay mechanism based on self-imitation learning to improve the sample efficiency\\
-	
-	Reinforcement learning has established itself as an \hlc{transformative force in the realm of xxx, demonstrating their versatility and efficacy across a variety of applications. The ability to model complex data distributions and generate high-quality samples has made xx particularly effective in tasks such as image generation and reinforcement learning. The paper first provides a basic background of GDMs and their applications in network optimization. This is followed by a series of case studies, showcasing the integration of GDMs with Deep Reinforcement Learning (DRL), These case studies underscore the practicality and efficacy of GDMs in real-world scenarios, offering insights into network design. We conclude with a discussion on potential future directions for GDM research and applications, providing major insights into how they can continue to shape the future of network optimization.}
-	
-	
-	\hlc{The contributions of this paper are summarized as follows:}\\
-	• We identify a novel and challenging problem (i.e., automated outlier detection) and propose a generic framework AutoOD. To the best of our knowledge, AutoOD describes the first attempt to incorporate AutoML with an outlier detection task, and one of the first to extend AutoML concepts into applications from data mining fields.\\
-	• We carefully design a search space specifically tailored to the automated outlier detection problem, covering architecture settings, outlier definitions, and the corresponding objective functions.\\
-	• We propose a curiosity-guided search strategy to overcome the curse of local optimality and stabilize search process\\
-	• We introduce an experience replay mechanism based on the self-imitation learning to improve the sample efficiency.\\
-	• We conduct extensive experiments on eight benchmark datasets to demonstrate the effectiveness of AutoOD, and provide insights on how to incorporate AutoOD to the realworld scenarios.\\
-	
-	
-	\subsection{Citations}
-	
-	\citep{Tabatabaie2021}: \citefield{Tabatabaie2021}{title}
-	\cite{Wang2023} \\
-	\citet{Mao2018-1928}\\
-	\citep{Wabartha2020-2140}\\
-	
-	\begingroup
-	\setlength{\tabcolsep}{6pt}
-	\begin{table}[h!]
-		\centering
-		\renewcommand{\arraystretch}{2} 
-		
-		\begin{tabular}{L{4cm} L{4cm} L{6cm}}	
-			\textbf{Article} & \textbf{Application domain} & \textbf{Use-case}\\
-			\midrule[0.005pt]
-			\citet{Pinciroli2022-752} & Wind farms & Suggest maintenance actions \\
-			\citet{Mao2018-1928}, 	 & Wind farms & Suggest maintenance actions \\
-			\midrule[0.01pt]
-		\end{tabular}
-		\caption{Articles using Imitation Learning for predictive maintenance.}
-		\label{tbl:SLR}
-	\end{table}
-	\endgroup	
-	
-	
-	\section{SAMPLE ABSTRACTS}
-	
-	
-	\subsubsection{Castro Tome - Event-Driven Data Acquisition for Electricity Metering: A Tutorial}
-	``\hlc{Here, our objective is to provide a comprehensive tutorial of improvements in EDM based on the (algorithmic) definition of the events in a semantic manner, considering also different types of filters and individual definition of thresholds.}``\\ \\
-	
-	Abstract—This paper provides a tutorial on the most recent advances of event-driven metering (EDM) while indicating potential extensions to improve its performance. We have revisited the effects on signal reconstruction of (i) a fine-tuned procedure for defining power variation events, (ii) consecutive-measurements filtering that refers to the same event, (iii) spike filtering, and (iv) timeout parameter. We have illustrated via extensive numerical results that EDM can provide high-fidelity signal reconstruction while decreasing the overall number of acquired measurements to be transmitted. Its main advantage is to only store samples that are informative based on predetermined events, avoiding redundancy and decreasing the traffic offered to the underlying communication network. This tutorial highlights the key advantages of EDMand points out promising research directions.
-	
-	Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
-	\clearpage
-	\section{Acronyms and notations}
-	\begin{table}[h]
-		\renewcommand\arraystretch{1.5}
-		\caption{Notation}
-		\begin{tabular}{@{} l L{12cm} @{}}
-			$S$&Set of all valid states\\
-			$A$&Set of all valid actions\\
-			$s_t$&State\\
-			$s'$, $s_{(t+1)}$& Next state\\
-			$a_t$&Action\\
-			$a'$, $a_{(t+1)}$& Next action\\
-			$P$, $P(s'\mid s,a)$&Probability distribution of state transitions\\
-			$R(t)$&Reward function\\
-			$\gamma$ & Discount factor\\
-			$\pi_{\theta}$ & Policy $\pi$ with learnable parameters $\theta$\\
-			$V^{\pi}(s)$ & Value function\\
-			$Q^{\pi}(s, a)$&Action-value function (Q value)\\ \\
-			\multicolumn{2}{l}{\textbf{Notations -- \cite{Osa-2018}}}\\\midrule
-			$x$ & system state\\
-			$s$ & context\\
-			$\phi$ & feature vector\\
-			$u$ & Predictive maintenance action\\
-			$\tau$ & trajectory\\
-			$\pi$ & Policy\\
-			$\mathcal{D}$ & dataset of demonstrations\\
-			$q$ & probability distribution induced by an expert’s policy\\
-			$p$ & probability distribution induced by a learner’s policy\\
-			$t$ & time\\
-			$T$ & finite horizon\\
-			$N$ & number of demonstrations\\
-			$E$ & superscript representing an expert e.g. $\pi^E$ denotes an expert`s policy\\
-			$L$ & superscript representing a learner e.g. $\pi^L$  denotes a learner’s policy\\
-			$demo$ & superscript representing a demonstration by an expert $\tau^{demo}$ denotes a trajectory demonstrated by an expert\\
-			
-		\end{tabular}
-	\end{table}
-	
-	\begin{table}[h]
-		\renewcommand\arraystretch{1.05}
-		\begin{center}
-			\begin{minipage}{\textwidth}
-				\caption{Acronyms}
-				\begin{tabular}{@{} l L{4cm} l L{4cm} @{}}
-					\multicolumn{4}{l}{\textbf{Maintenance related terms:}}\\\midrule
-					CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
-					EoL& End-of-life & KPI&Key Performance Indicator\\
-					MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
-					PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
-					PHM& Prognostic Health Management&PM & Preventive Maintenance\\
-					RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
-					SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\
-					
-					\multicolumn{4}{l}{\textbf{Algorithms:}} \\ \midrule
-					CNN&Convoluted Neural Network&LSTM&Long Short Term Memory\\
-					A-C& Actor-Critic&PG&Policy Gradient methods\\
-					DDPG&Deep Deterministic Policy Gradient&PPO&Proximal Policy Optimization\\
-					DQN&Deep Q-Network&DDQN&Double Deep Q-Network\\ \\
-					
-					\multicolumn{4}{l}{\textbf{Reinforcement Learning:}}\\\midrule
-					ML & Machine Learning&RL & Reinforcement Learning\\
-					MDP & Markov Decision Process&HM-MDP & Hidden-Mode MDP\\
-					POMDP & Partially Observable MDP&SMDP & Semi-MDP\\ \\
-					% \botrule
-				\end{tabular}
-			\end{minipage}
-		\end{center}
-	\end{table}
-	
-	\clearpage
-	\printbibliography %Prints bibliography
-	
+	\end{tabular}
+\end{table}
+
+\begin{table}[h]
+	\renewcommand\arraystretch{1.05}
+	\begin{center}
+		\begin{minipage}{\textwidth}
+			\caption{Acronyms}
+			\begin{tabular}{@{} l L{4cm} l L{4cm} @{}}
+				\multicolumn{4}{l}{\textbf{Maintenance related terms:}}\\\midrule
+				CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
+				EoL& End-of-life & KPI&Key Performance Indicator\\
+				MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
+				PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
+				PHM& Prognostic Health Management&PM & Preventive Maintenance\\
+				RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
+				SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\
+				
+				\multicolumn{4}{l}{\textbf{Algorithms:}} \\ \midrule
+				CNN&Convoluted Neural Network&LSTM&Long Short Term Memory\\
+				A-C& Actor-Critic&PG&Policy Gradient methods\\
+				DDPG&Deep Deterministic Policy Gradient&PPO&Proximal Policy Optimization\\
+				DQN&Deep Q-Network&DDQN&Double Deep Q-Network\\ \\
+				
+				\multicolumn{4}{l}{\textbf{Reinforcement Learning:}}\\\midrule
+				ML & Machine Learning&RL & Reinforcement Learning\\
+				MDP & Markov Decision Process&HM-MDP & Hidden-Mode MDP\\
+				POMDP & Partially Observable MDP&SMDP & Semi-MDP\\ \\
+				% \botrule
+			\end{tabular}
+		\end{minipage}
+	\end{center}
+\end{table}
+
+\clearpage
+\printbibliography %Prints bibliography
+
 \end{document}
