@@ -4,7 +4,6 @@ Code_Store/
 Data/
 storage/
 models/
-images/
 results/
 tensorboard/
 *.csv

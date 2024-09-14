@@ -1,6 +1,4 @@
-%% MOHOPADA-H-PC work 09-Sep 10:00am
-%% NOTES: Stanford lecs used capital Xi \Xi for demonstrations, I've used \mathcal{D} 
-%% Transfered from H-PC MOHOPADA 08-Sep. 10:20 am
+%% 2.2: H-14-Sep-2024 18:11
 
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
@@ -151,7 +149,7 @@ For an IL problem setting, it is the reward function, that we do not want to des
 \end{equation}
 where these pairs are governed by the expert's policy, denoted by $\pi^{*}$.
 
-Stated formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\xi_0, \xi_1, \xi_2, ... \xi_D\}$, from an expert policy  $\pi^{*}$ to find a policy $\hat{\pi}^{*}$ that imitates the expert policy.
+Stated formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\xi_0, \xi_1, \xi_2, ... \xi_D\}$, from an expert policy $\pi^{*}$ to find a policy $\hat{\pi}^{*}$ that imitates the expert policy.
 
 In the industrial maintenance context, the objective of imitation learning is to generate a predictive maintenance policy $\pi$ (simpler form of the $\hat{\pi}^{*}$, where the $\hat{}$ is the statistical designation of an estimated value) that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
 
@@ -167,9 +165,9 @@ Imitation Learning approaches can be classified into two primary approaches: in 
 
 \subsection{Behavioral Cloning}
 
-The concept of learning from demonstrations for first conceptualized in '\citefield{BC-bain1995}{title}' by \cite{BC-bain1995}. Their seminal work was grounded around control theory. They defined behavioral cloning as the process of logging data from skilled, human operators, and providing these as inputs to an induction program which produces a control strategy ('policy' in RL terminology) for a complex control task. They defined the output of the cloning process as a set of ``situation-action'' rules \textcolor{red}{mapping the current state of the process being controlled to a set of actions that achieve some desired goal}.
+The concept of learning from demonstrations for first conceptualized in '\citefield{BC-bain1995}{title}' by \cite{BC-bain1995}. Their seminal work was grounded around control theory. They defined behavioral cloning as the process of logging data from skilled, human operators, and providing these as inputs to an induction program which produces a control strategy ('policy' in RL terminology) for a complex control task. They defined the output of the cloning process as a set of ``situation-action'' rules that can achieve the control goal by creating a matrix (table) of states of the process to a set of applicable actions.
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{images/BC_Diagram.png}
 \caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
@@ -185,80 +183,49 @@ where $L$ is the loss function, $\pi^*(s)$ is the expert's predictive maintenanc
 
 In practice, different loss functions are used depending on the form of the policy: $p$-norms (e.g. Euclidean norm when $p=2$) or $f$-divergences (e.g. KL divergence).
 
-%% $$$
 \subsubsection{Practical implications of BC}
-\hlc{WordSmith} from \cite{reddy2019sqil} SQIL paper--``\textit{BC is a simple approach that seeks to imitate the expert’s actions using supervised learning – in particular, greedily maximizing the conditional likelihood of the demonstrated actions given the demonstrated states, without reasoning about the consequences of actions}''
+The BC algorithm is therefore simple -- at every time-step $t$ it makes the basic assumption that the imitation has been perfect so far, and continues to obediently copy the expert. As is the case for supervised learning, during the optimization step, the algorithm minimizes the deviation compared to expert trajectories and thus minimizes (only) the 1-step error, \citep{yue2018imitation}. As we shall see next, this assumption can cause a drift-off and cause compounding errors, leading to an incorrect learner. We shall also see how it is addressed. 
 
-In simple terms the BC algorithm \citep{yue2018imitation}:
-\begin{itemize}
-\item At time-step, $t$ assumes imitation has been perfect so far $(t-1)$, and continue to obediently clone or copy the imitating.
-\item As in the optimization step of supervised learning, the algorithm minimizes the deviation compared to expert trajectories, at every step (i.e. minimize the 1-step error).
-\end{itemize}
-
-As laid out in figure \ref{fig:BC}, the learning processes depends solely on the set of demonstrations provided by the expert. It is often difficult for the experts to cover the entire state space, if they do not uniformly sample the state space or provide samples according to convenience.
+As depicted in figure \ref{fig:BC}, the learning processes depends solely on the set of demonstrations provided by the expert. It is often difficult for the experts to cover the entire state space, if they do not uniformly sample the state space or provide samples according to convenience.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
-	\caption{Distributional mismatch}
-	\label{fig:DistribShift}
+\centering
+\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
+\caption{Distributional mismatch (illustrative and exaggerated).}
+\label{fig:DistribShift}
 \end{figure}
 
 In an industrial maintenance situation this could happen, if for example, the expert picks a certain time of day and a short time period within the entire span of equipment or tool life to provide the demonstrations $\mathcal{D}$.  This will result in a \textit{temporal sequence} of states and actions with a particular distribution. The learned policy will then perform poorly when faced with states not present in $\mathcal{D}$. Behavioral cloning will then \textit{estimate} the policy ${\hat{\pi}}^*$ with its own slightly different distribution of states and these states  that will be visited. The algorithm then begins to drift at every step of learning, leading to compounding errors. This ``distributional shift'', Fig. \ref{fig:DistribShift}, is a major challenge in imitation learning, \citep{yue2018imitation, stanford-lectures}. \textcolor{red}{PLACEMENT -- the importance of randomly sampling and non sequential examples - also PROVIDE DIAGRAM!} 
 
-\cite{Dagger-Ross2010} overcame this core limitation of distributional mismatch in states, by devising the DAgger (Dataset Aggregation) algorithm. It augments existing demonstrations with new expert data when the learned policy ${\hat{\pi}}^*$ leads to states that are not present in the expert dataset $\mathcal{D}$, the expert is queried for more data. 
+\cite{Dagger-Ross2010} overcame this core limitation of distributional mismatch in states, by devising the DAgger (Dataset Aggregation) algorithm. It augments existing demonstrations with new expert data when the learned policy ${\hat{\pi}}^*$ leads to states that are not present in the expert dataset $\mathcal{D}$, the expert is queried for more data.
 
-\begin{algorithm}\label{algorithm:DAgger}
-	\onehalfspacing
-	\caption{DAgger Dataset Aggregation algorithm, \cite{stanford-lectures}} 
-	\begin{algorithmic}[1]
-		\State {Data: $\pi^*$}
-		\State {Result: $\hat{\pi}^*$}
-		\State {Initialize $\mathcal{D} \leftarrow 0$}
-		\State {Initialize $\hat{\pi}$}
-		\For {i=1 to N}
-			\State {$\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}$}
-			\State {Rollout policy $\pi_i$ to sample trajectory $\tau = \{s_0, s_1, ..., s_T\}$ }
-			\State {Query expert $\pi^*$ and generate dataset $\mathcal{D}_i = \{(s_0, \pi^*(s_0)), (s_1, \pi^*(s_1)), ..., (s_T, \pi^*(s_T))\}$}
-			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i $}
-			\State {Retrain policy $\hat{\pi}$ using aggregated dataset $\mathcal{D}$}
-		\EndFor
-		\State {Return $\hat{\pi}$}
-	\end{algorithmic} 
+The DAgger algorithm is presented in Algorithm \ref{algo:DAgger}. In the first iteration, the expert's policy is used to gather a dataset $\mathcal{D}$ of trajectories and proceed to train the policy $\hat{\pi}_2$, using supervised learning with an appropriate loss function, that best mimics the expert on those trajectories. It continues this process. Therefore at any iteration $n$, it uses $\hat{\pi}_n$ to gather additional trajectories and append and grown the existing dataset $\mathcal{D}$. The next policy that will be trained, $\hat{\pi}_{n+1}$. will be the policy that best mimics the expert on the entire dataset $\mathcal{D}$.
+
+\noindent \textbf{Notation}:\\
+\textbullet\ \quad $\Pi$ is the set of policies the learner is considering and $T$ the time horizon of the task.\\
+\textbullet\ \quad Parameter $\beta$ to set how data is obtained from from the expert's behavior. $\beta_i = p^{i-1}$ sets an exponentially decaying probability of using the expert, where $p \in \{0,1, 0.2, ..., 0.9\}$\\
+
+\begin{algorithm}
+\onehalfspacing
+\caption{DAgger Dataset Aggregation algorithm, \citep{Dagger-Ross2010}}\label{algo:DAgger}
+\begin{algorithmic}[1]
+	% \State {Data: $\pi^*$}
+	% \State {Result: $\hat{\pi}^*$}
+	\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
+	\State {Initialize $\hat{\pi}_i$}
+	\For {i=1 to N}
+	\State {$\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
+	\State {Rollout policy $\pi_i$ to sample trajectory $\tau = \{s_0, s_1, ..., s_T\}$ }
+	\State {Query expert $\pi^*$ for actions on states provided by $\pi_i$}
+	\State {Create dataset $\mathcal{D}_i = \{(s_0, \pi^*(s_0)), (s_1, \pi^*(s_1)), ..., (s_T, \pi^*(s_T))\}$}
+	\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i $}
+	\State {Retrain policy $\hat{\pi}_{i+1}$ using aggregated dataset $\mathcal{D}$}
+	\EndFor
+	\State {Return best $\hat{\pi}_i$ on validation}
+\end{algorithmic} 
 \end{algorithm}
 
 \textcolor{red}{From ROSS: In other words, DAGGER proceeds by collecting a dataset 	at each iteration under the current policy and trains the next 	policy under the aggregate of all collected datasets. The intuition 	behind this algorithm is that over the iterations, we 	are building up the set of inputs that the learned policy is 	likely to encounter during its execution based on previous experience (training iterations).}
-
-Notation: $\Pi$ is the set of policies the learner is considering and $T$ the time horizon of the task.
-
-\begin{algorithm}\label{algorithm:DAgger-Ross}
-	\onehalfspacing
-	\caption{DAgger Dataset Aggregation algorithm, \cite{Dagger-Ross2010}} 
-	\begin{algorithmic}[1]
-		\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
-		\State {Initialize $\hat{\pi}_1$ to any policy in $\Pi$}
-		\For {i=1 to N}
-			\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
-			\State {Sample $T$-step trajectories using $\pi_i$}
-			\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
-			\State {and actions given by expert}
-			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i$}
-			\State {Train policy $\hat{\pi}_{i+1}$ on $\mathcal{D}$}
-		\EndFor
-		\State {Return best $\hat{\pi}_i$ on validation.}
-	\end{algorithmic} 
-\end{algorithm}
-
-% $$$ Additional content from YUE and LE 2018 -- \citep{yue2018imitation}
-%
-%In the simplest form, Behavioral Cloning is equivalent to supervised learning, where $P^* = P(s\mid\pi^*)$ is the distribution of states visited by the expert. The learning objective is given by \eqref{eq:bcobj}, \cite{yue2018imitation}. 
-%\begin{equation}\label{eq:bcobj}
-%	argmin_\theta E(s,a^*) \sim P^* L(a^*, \pi_{\theta}(s))	
-%\end{equation}
-%\textbf{Inverse RL} is to learn the reward function $r$, such that it satisfies \eqref{eq:IRL}, \cite{yue2018imitation}.
-%\begin{equation}\label{eq:IRL}
-%	\pi^* = argmax_\theta E(s) \sim P(s\mid\theta)r(s,\pi_{theta}(s))
-%\end{equation}
 
 \begingroup
 \setlength{\tabcolsep}{6pt}
@@ -443,15 +410,15 @@ The full algorithm is the following:
 
 \textbf{key steps are algorithm are to:}
 \begin{itemize}
-	\item Estimate the value of our optimal policy for the initial state, as well as the value of every generated policy 	by taking the average cumulative reward of many randomly sampled trials.
-	
-	\item Generate an estimate of the reward function by solving a linear programming problem. Specifically, set to maximize the difference between our optimal policy and each of the other generated policies.
-	
-	\item After a large number of iterations, end the algorithm at this step.
-	
-	\item Otherwise, use a standard RL algorithm to find the optimal policy for. This policy may be different from the given optimal policy, since our estimated reward function is not necessarily identical to the reward function we are searching for.
-	
-	\item Add the newly generated policy to the set of candidate policies, and repeat the procedure.
+\item Estimate the value of our optimal policy for the initial state, as well as the value of every generated policy 	by taking the average cumulative reward of many randomly sampled trials.
+
+\item Generate an estimate of the reward function by solving a linear programming problem. Specifically, set to maximize the difference between our optimal policy and each of the other generated policies.
+
+\item After a large number of iterations, end the algorithm at this step.
+
+\item Otherwise, use a standard RL algorithm to find the optimal policy for. This policy may be different from the given optimal policy, since our estimated reward function is not necessarily identical to the reward function we are searching for.
+
+\item Add the newly generated policy to the set of candidate policies, and repeat the procedure.
 \end{itemize}
 
 
@@ -516,18 +483,18 @@ Reinforcement learning has established itself as an \hlc{transformative force in
 \begingroup
 \setlength{\tabcolsep}{6pt}
 \begin{table}[h!]
-	\centering
-	\renewcommand{\arraystretch}{2} 
-	
-	\begin{tabular}{L{4cm} L{4cm} L{6cm}}	
-		\textbf{Article} & \textbf{Application domain} & \textbf{Use-case}\\
-		\midrule[0.005pt]
-		\citet{Pinciroli2022-752} & Wind farms & Suggest maintenance actions \\
-		\citet{Mao2018-1928}, 	 & Wind farms & Suggest maintenance actions \\
-		\midrule[0.01pt]
-	\end{tabular}
-	\caption{Articles using Imitation Learning for predictive maintenance.}
-	\label{tbl:SLR}
+\centering
+\renewcommand{\arraystretch}{2} 
+
+\begin{tabular}{L{4cm} L{4cm} L{6cm}}	
+	\textbf{Article} & \textbf{Application domain} & \textbf{Use-case}\\
+	\midrule[0.005pt]
+	\citet{Pinciroli2022-752} & Wind farms & Suggest maintenance actions \\
+	\citet{Mao2018-1928}, 	 & Wind farms & Suggest maintenance actions \\
+	\midrule[0.01pt]
+\end{tabular}
+\caption{Articles using Imitation Learning for predictive maintenance.}
+\label{tbl:SLR}
 \end{table}
 \endgroup	
 
@@ -544,73 +511,91 @@ Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
 \clearpage
 \section{Acronyms and notations}
 \begin{table}[h]
-	\renewcommand\arraystretch{1.5}
-	\caption{Notation}
-	\begin{tabular}{@{} l L{12cm} @{}}
-		$S$&Set of all valid states\\
-		$A$&Set of all valid actions\\
-		$s_t$&State\\
-		$s'$, $s_{(t+1)}$& Next state\\
-		$a_t$&Action\\
-		$a'$, $a_{(t+1)}$& Next action\\
-		$P$, $P(s'\mid s,a)$&Probability distribution of state transitions\\
-		$R(t)$&Reward function\\
-		$\gamma$ & Discount factor\\
-		$\pi_{\theta}$ & Policy $\pi$ with learnable parameters $\theta$\\
-		$V^{\pi}(s)$ & Value function\\
-		$Q^{\pi}(s, a)$&Action-value function (Q value)\\ \\
-		\multicolumn{2}{l}{\textbf{Notations -- \cite{Osa-2018}}}\\\midrule
-		$x$ & system state\\
-		$s$ & context\\
-		$\phi$ & feature vector\\
-		$u$ & Predictive maintenance action\\
-		$\tau$ & trajectory\\
-		$\pi$ & Policy\\
-		$\mathcal{D}$ & dataset of demonstrations\\
-		$q$ & probability distribution induced by an expert’s policy\\
-		$p$ & probability distribution induced by a learner’s policy\\
-		$t$ & time\\
-		$T$ & finite horizon\\
-		$N$ & number of demonstrations\\
-		$E$ & superscript representing an expert e.g. $\pi^E$ denotes an expert`s policy\\
-		$L$ & superscript representing a learner e.g. $\pi^L$  denotes a learner’s policy\\
-		$demo$ & superscript representing a demonstration by an expert $\tau^{demo}$ denotes a trajectory demonstrated by an expert\\
-		
-	\end{tabular}
+\renewcommand\arraystretch{1.5}
+\caption{Notation}
+\begin{tabular}{@{} l L{12cm} @{}}
+	$S$&Set of all valid states\\
+	$A$&Set of all valid actions\\
+	$s_t$&State\\
+	$s'$, $s_{(t+1)}$& Next state\\
+	$a_t$&Action\\
+	$a'$, $a_{(t+1)}$& Next action\\
+	$P$, $P(s'\mid s,a)$&Probability distribution of state transitions\\
+	$R(t)$&Reward function\\
+	$\gamma$ & Discount factor\\
+	$\pi_{\theta}$ & Policy $\pi$ with learnable parameters $\theta$\\
+	$V^{\pi}(s)$ & Value function\\
+	$Q^{\pi}(s, a)$&Action-value function (Q value)\\ \\
+	\multicolumn{2}{l}{\textbf{Notations -- \cite{Osa-2018}}}\\\midrule
+	$x$ & system state\\
+	$s$ & context\\
+	$\phi$ & feature vector\\
+	$u$ & Predictive maintenance action\\
+	$\tau$ & trajectory\\
+	$\pi$ & Policy\\
+	$\mathcal{D}$ & dataset of demonstrations\\
+	$q$ & probability distribution induced by an expert’s policy\\
+	$p$ & probability distribution induced by a learner’s policy\\
+	$t$ & time\\
+	$T$ & finite horizon\\
+	$N$ & number of demonstrations\\
+	$E$ & superscript representing an expert e.g. $\pi^E$ denotes an expert`s policy\\
+	$L$ & superscript representing a learner e.g. $\pi^L$  denotes a learner’s policy\\
+	$demo$ & superscript representing a demonstration by an expert $\tau^{demo}$ denotes a trajectory demonstrated by an expert\\
+	
+\end{tabular}
 \end{table}
 
 \begin{table}[h]
-	\renewcommand\arraystretch{1.05}
-	\begin{center}
-		\begin{minipage}{\textwidth}
-			\caption{Acronyms}
-			\begin{tabular}{@{} l L{4cm} l L{4cm} @{}}
-				\multicolumn{4}{l}{\textbf{Maintenance related terms:}}\\\midrule
-				CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
-				EoL& End-of-life & KPI&Key Performance Indicator\\
-				MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
-				PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
-				PHM& Prognostic Health Management&PM & Preventive Maintenance\\
-				RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
-				SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\
-				
-				\multicolumn{4}{l}{\textbf{Algorithms:}} \\ \midrule
-				CNN&Convoluted Neural Network&LSTM&Long Short Term Memory\\
-				A-C& Actor-Critic&PG&Policy Gradient methods\\
-				DDPG&Deep Deterministic Policy Gradient&PPO&Proximal Policy Optimization\\
-				DQN&Deep Q-Network&DDQN&Double Deep Q-Network\\ \\
-				
-				\multicolumn{4}{l}{\textbf{Reinforcement Learning:}}\\\midrule
-				ML & Machine Learning&RL & Reinforcement Learning\\
-				MDP & Markov Decision Process&HM-MDP & Hidden-Mode MDP\\
-				POMDP & Partially Observable MDP&SMDP & Semi-MDP\\ \\
-				% \botrule
-			\end{tabular}
-		\end{minipage}
-	\end{center}
+\renewcommand\arraystretch{1.05}
+\begin{center}
+	\begin{minipage}{\textwidth}
+		\caption{Acronyms}
+		\begin{tabular}{@{} l L{4cm} l L{4cm} @{}}
+			\multicolumn{4}{l}{\textbf{Maintenance related terms:}}\\\midrule
+			CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
+			EoL& End-of-life & KPI&Key Performance Indicator\\
+			MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
+			PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
+			PHM& Prognostic Health Management&PM & Preventive Maintenance\\
+			RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
+			SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\
+			
+			\multicolumn{4}{l}{\textbf{Algorithms:}} \\ \midrule
+			CNN&Convoluted Neural Network&LSTM&Long Short Term Memory\\
+			A-C& Actor-Critic&PG&Policy Gradient methods\\
+			DDPG&Deep Deterministic Policy Gradient&PPO&Proximal Policy Optimization\\
+			DQN&Deep Q-Network&DDQN&Double Deep Q-Network\\ \\
+			
+			\multicolumn{4}{l}{\textbf{Reinforcement Learning:}}\\\midrule
+			ML & Machine Learning&RL & Reinforcement Learning\\
+			MDP & Markov Decision Process&HM-MDP & Hidden-Mode MDP\\
+			POMDP & Partially Observable MDP&SMDP & Semi-MDP\\ \\
+			% \botrule
+		\end{tabular}
+	\end{minipage}
+\end{center}
 \end{table}
 
 \clearpage
 \printbibliography %Prints bibliography
 
 \end{document}
+
+% \begin{algorithm}\label{algorithm:DAgger-Ross}
+% 	\onehalfspacing
+% 	\caption{DAgger Dataset Aggregation algorithm, \cite{Dagger-Ross2010}} 
+% 	\begin{algorithmic}[1]
+% 		\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
+% 		\State {Initialize $\hat{\pi}_1$ to any policy in $\Pi$}
+% 		\For {i=1 to N}
+% 			\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
+% 			\State {Sample $T$-step trajectories using $\pi_i$}
+% 			\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
+% 			\State {and actions given by expert}
+% 			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i$}
+% 			\State {Train policy $\hat{\pi}_{i+1}$ on $\mathcal{D}$}
+% 		\EndFor
+% 		\State {Return best $\hat{\pi}_i$ on validation.}
+% 	\end{algorithmic} 
+% \end{algorithm}
