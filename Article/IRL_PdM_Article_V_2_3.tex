@@ -3,7 +3,10 @@
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
 \usepackage[style=authoryear, backend=bibtex, natbib]{biblatex}
+
 \usepackage{graphicx}
+\usepackage{floatrow}
+
 \addbibresource{bibliography.bib} % Bibliography file
 \usepackage[hidelinks]{hyperref}	% links
 \hypersetup{colorlinks = true, urlcolor = blue, linkcolor = blue, citecolor = blue}
@@ -18,10 +21,13 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
+\newfloatcommand{capbtabbox}{table}[][\FBwidth] % Bottom caption, box width adjusted to content
+
 \onehalfspacing
 
 %%% MACROS
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 \newcommand{\hlc}[2][blue!10]{{\colorlet{foo}{#1} \sethlcolor{foo}\hl{#2}}}
 \algnewcommand{\Inputs}[1]{%
 \State \textbf{Inputs:}
@@ -49,10 +55,10 @@
 \section{APPROACH}
 \begin{enumerate}
 	\item Tech background: First finish STANFORD
-	\item \qquad BC - only - max Dagger - rest say beyond scope
-	\item Survey!
-	\item \qquad Taxonomy --- Stanford lec + OSA + 1 survey is enough
-	\item Tutorial!
+	\item \quad BC - only - max Dagger - rest say beyond scope
+	\item Survey! === Sec.\ref{sec:SLR}
+	\item \quad Taxonomy --- Stanford lec + OSA + 1 survey is enough === Sec.\ref{sec:Taxonomy}
+	\item Tutorial! === Sec.\ref{sec:Tutorial}
 \end{enumerate}
 \subsection{IMPORTANT REFS}
 \begin{enumerate}
@@ -248,23 +254,14 @@ The DAgger algorithm is presented in Algorithm \ref{algo:DAgger}. In the first i
 \end{table}
 \endgroup
 
-\subsection{Taxonomy}
+\subsection{Taxonomy}\label{sec:Taxonomy}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.75\linewidth]{images/IRL_Taxonomy.png}
+\includegraphics[width=0.6\linewidth]{images/IRL_Taxonomy.png}
 \caption{Taxonomy of Imitation Learning techniques.}
 \label{fig:taxonomy}
 \end{figure}
-
-\subsection{Taxonomy}
-
-\begin{enumerate}
-\item Dagger - original paper \cite{Dagger-Ross2010}
-\item CHAI - \cite{CHAI}
-\item imitation algos -- \cite{imitation-algos}
-\end{enumerate}
-\par
 
 \hlc{WordSmith from}: \cite{berant2015imitation} -- To introduce adding the PdM..."To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of"\\
 A history $h = (s_1, a_1, . . . , a_T, s_{T+1})$ (\hlc{add a nice Figure! $\rightarrow$ SEE THE COMPRESSED HISTORY section in this article - as it mentions NON sequentioal }) is a sequence of states and actions, such that ... The policy for choosing predictive maintenance actions induces a distribution over histories \\
@@ -274,20 +271,40 @@ p_{\theta}(h) = \prod^{T}_{t=1} p_\theta (a_t \mid s_t)
 
 \hlc{WordsSmith} ``\textit{This can be accomplished through learning from demonstration, also known as imitation learning. A key principle of imitation learning is that while it may be very difficult to quantify why a certain behavior is desirable, the actual correct behavior is usually known by a human expert. Therefore, rather than having a human expert tune a system to achieve desired behavior, the expert can emonstrate desired behavior and the robot can tune itself to match the demonstration}``
 
-
-
 \hlc{\textbf{very important}}: sAMPLED TRajectoriersw  are not sequecntional. why that is ok -- we use the logic in \cite{berant2015imitation} -- compressed history. why it helps: by REMOVING time axis - we remove the logi of replacing after N units of time - i.e. PREVENTIVE maintenance. now it must base it decision on sensor readings - just like calling in an exprt NOT awre of whent the milling tool was installed.
 
+\section{Survey of IRL methods for predictive maintenance}\label{sec:SLR}
 
-\par
+\begin{figure}
+	\begin{floatrow}
+		\capbtabbox{%
+			\fontfamily{lmss}\selectfont
+			\renewcommand{\arraystretch}{1.3}
+			\begin{tabular}{L{3cm} R{1cm} R{1.5cm} R{1cm}} 
+				\midrule[0.01pt]
+				Category & \textbf{Scopus} & \textbf{Web of Science} & \textbf{IEEE Xplore}\\
+				\midrule[0.01pt]
+				Entire Imitation Learning (IL) field & \textcolor{blue}{4,966}	& 3,516	& 4,679 \\
+				IL applied to robotics	& 1,632	& 1,430	& \textcolor{blue}{2,544} \\
+				IL applied to predictive maintenance	& \textcolor{blue}{3}	& 1	& 2 \\
+				\midrule[0.01pt]
+			\end{tabular}
+		}{%
+			\caption{Research articles by indexing services.\\Data as of 15-Sep-2024.} \label{tbl:SLR}%
+		}
+		
+		\ffigbox{%
+			\centering
+			\includegraphics[width=0.9\linewidth]{images/SRL_Articles_funnel.png}
+		}{
+		\caption{Articles across databases.\\(\textcolor{blue}{Blue} numbers from Table \ref{tbl:SLR}).}\label{fig:SLR}}
+		\end{floatrow}%
+\end{figure}
 
-
-\section{Survey of IRL methods for predictive maintenance}
 
 The field of 
 
-("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("robot") Scopus: 1,194  results, WOS 1,378
-
+\texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("robot")} Scopus: 1,194  results, WOS 1,378
 
 
 \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("predictive maintenance" OR "preventive maintenance" OR "prognostic")}
@@ -422,7 +439,14 @@ The full algorithm is the following:
 \end{itemize}
 
 
-\section{TUTORIAL PAPER}
+\section{TUTORIAL PAPER}\label{sec:Tutorial}
+
+\textbf{Refs for tut section:}
+\begin{enumerate}
+	\item CHAI - \cite{CHAI}
+	\item Imitation algos -- \cite{imitation-algos}
+\end{enumerate}
+\par
 
 IEEE Access tuturial paper -- \href{https://ieeexplore.ieee.org/document/9086464}{A Tutorial and Future Research for Building a Blockchain-Based Secure Communication Scheme for Internet of Intelligent Things} 
 
@@ -494,7 +518,7 @@ Reinforcement learning has established itself as an \hlc{transformative force in
 	\midrule[0.01pt]
 \end{tabular}
 \caption{Articles using Imitation Learning for predictive maintenance.}
-\label{tbl:SLR}
+\label{tbl:SLR-PdM}
 \end{table}
 \endgroup	
 
@@ -581,21 +605,3 @@ Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
 \printbibliography %Prints bibliography
 
 \end{document}
-
-% \begin{algorithm}\label{algorithm:DAgger-Ross}
-% 	\onehalfspacing
-% 	\caption{DAgger Dataset Aggregation algorithm, \cite{Dagger-Ross2010}} 
-% 	\begin{algorithmic}[1]
-% 		\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
-% 		\State {Initialize $\hat{\pi}_1$ to any policy in $\Pi$}
-% 		\For {i=1 to N}
-% 			\State {Let $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
-% 			\State {Sample $T$-step trajectories using $\pi_i$}
-% 			\State {Get dataset $\mathcal{D}_i = \{(s, \pi^*(s))\}$ of visited states by $\pi_i$}
-% 			\State {and actions given by expert}
-% 			\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i$}
-% 			\State {Train policy $\hat{\pi}_{i+1}$ on $\mathcal{D}$}
-% 		\EndFor
-% 		\State {Return best $\hat{\pi}_i$ on validation.}
-% 	\end{algorithmic} 
-% \end{algorithm}

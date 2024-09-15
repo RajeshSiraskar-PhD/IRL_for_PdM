@@ -8,7 +8,6 @@ results/
 tensorboard/
 *.csv
 *.bat
-Article/images/
 Article/*.aux
 Article/*.bbl
 Article/*.blg
