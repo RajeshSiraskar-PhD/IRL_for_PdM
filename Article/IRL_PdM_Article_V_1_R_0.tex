@@ -1,4 +1,9 @@
-%% 2.3: H-15-Sep-2024 11:30 pm
+%% --------------------------------------------------------------
+%% Imitation Learning applied to predictive maintenance
+%%
+%% V.1.0: Re-baselined. 17-Sep-2024
+%%
+%% --------------------------------------------------------------
 
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
@@ -42,148 +47,153 @@
 
 %\title{Beyond Reinforcement Learning: A Tutorial on Applying Reward Learning to Predictive Maintenance}
 %\title{Beyond Reinforcement Learning: Learning to Imitate the Predictive Maintenance Engineer}
-\title{Beyond Reinforcement Learning: Learning to Imitate the Predictive Maintenance Engineer}
+\title{Beyond Reinforcement Learning: Learning to Imitate the Expert Predictive Maintenance Engineer.\\\textcolor{red}{\small{V.1.0}}}
 \author{Rajesh Siraskar}
 
 \begin{document}
-	\maketitle
-	\begin{abstract}
-		The role of the maintenance engineer in ensuring the smooth, disruption free, running of industrial machines is indispensable. Industrial plants depend on the expert judgment of the maintenance engineer to estimate machine part failures just so much in advance that quality of product is not affected and yet not so much in advance that the part's effective useful life is not fully utilized. While human judgment is undeniably superior to computer based algorithmic systems, they cannot physically cater to hundreds of machine parts simultaneously. Advances in reinforcement learning technology have enabled autonomous predictive maintenance of large scale plants. These algorithms replicate the human learning mechanism and optimize the part replacement problem using "cost functions". Design of reinforcement learning cost functions remains a "hand crafted" process. This article explores the application of Learning from Demonstration applied to this task for the predictive maintenance. This paper first provides a basic understanding of \hlc{IRL, inverse reinforcement learning}. We study broadly where it has been applied, emphasizing their applicability to the predictive maintenance domain. Using expert examples of desired tool replacement patterns the "Imitation Learning" learns human like replacement patterns. In the form of a tutorial, this paper demonstrates an implementation of the Behavior Cloning algorithm. We use the standard benchmark \hlc{IEEE PHM 2010} dataset and present experimental results.
-	\end{abstract}
-	
-	\clearpage
-	\section{APPROACH}
+\maketitle
+\begin{abstract}
+	Most developed countries are facing a crisis. An ever increasing proportion of expert work force retiring combined with fewer workers. This threatens the economic growth of industrialized countries, like Germany. This article is a short survey and tutorial on applying Behavioral Cloning, an artificial intelligence algorithm that learns to imitate an expert. We show how it can be applied to the domain of industrial predictive maintenance. The role of the maintenance engineer in ensuring the smooth, disruption free, running of industrial machines is indispensable. Industrial plants depend on the expert judgment of the maintenance engineer to estimate machine part failures just so much in advance that quality of product is not affected and yet not so much in advance that the part's effective useful life is not fully utilized. While human judgment is undeniably superior to computer based algorithmic systems, they cannot physically cater to hundreds of machine parts simultaneously. Advances in reinforcement learning technology have enabled autonomous predictive maintenance of large scale plants. These algorithms replicate the human learning mechanism and optimize the part replacement problem using "cost functions". Design of reinforcement learning cost functions remains a "hand crafted" process. This article explores the application of Learning from Demonstration applied to this task for the predictive maintenance. This paper first provides a basic understanding of \hlc{IRL, inverse reinforcement learning}. We study broadly where it has been applied, emphasizing their applicability to the predictive maintenance domain. Using expert examples of desired tool replacement patterns the "Imitation Learning" learns human like replacement patterns. In the form of a tutorial, this paper demonstrates an implementation of the Behavior Cloning algorithm. We use the standard benchmark \hlc{IEEE PHM 2010} dataset and present experimental results.
+\end{abstract}
+
+\clearpage
+\section{APPROACH}
+\begin{enumerate}
+	\item Tech background: First finish STANFORD
+	\item \quad BC - only - max Dagger - rest say beyond scope
+	\item Survey! === Sec.\ref{sec:SLR}
+	\item \quad Taxonomy --- Stanford lec + OSA + 1 survey is enough === Sec.\ref{sec:Taxonomy}
+	\item Tutorial! === Sec.\ref{sec:Tutorial}
+\end{enumerate}
+\subsection{IMPORTANT REFS}
+\begin{enumerate}
+	\item business refs:
+	Right now, one-quarter of the manufacturing workforce is over 55 years old. Meanwhile, the manufacturing industry is struggling to attract enough younger workers with the right skills and qualifications.  \href{https://fortune.com/europe/2024/05/29/germany-aging-population-economy-europe-growth-productivity-workforce-imf/}{Fortune}\href{https://www.imf.org/en/News/Articles/2024/03/27/germanys-real-challenges-are-aging-underinvestment-and-too-much-red-tape}{IMF}; 
+	\item \href{https://web.stanford.edu/class/cs237b/pdfs/lecture/cs237b_lecture_12.pdf}{Stanford lecture} -- 14 pgs - SOLID foundation - use to sort out terms:
+	\begin{itemize}
+		\item Inverse Reinforcement Learning  
+		\item Apprenticeship Learning 
+		\item Maximum Margin Planning
+		\item Maximum Entropy Inverse Reinforcement Learning
+		\item Learning From Comparisons and Physical Feedback
+	\end{itemize}
+	\item \cite{Osa-2018} - Algorithmic Perspective on IL - see images/illustrations etc.
 	\begin{enumerate}
-		\item Tech background: First finish STANFORD
-		\item \quad BC - only - max Dagger - rest say beyond scope
-		\item Survey! === Sec.\ref{sec:SLR}
-		\item \quad Taxonomy --- Stanford lec + OSA + 1 survey is enough === Sec.\ref{sec:Taxonomy}
-		\item Tutorial! === Sec.\ref{sec:Tutorial}
+		\item \hlc{TAXONOMY} - add Model-based/Model-free and more
+		\item Pg. 17, Sec. 1.3 
+		\hlc{Key Differences between Imitation Learning and Supervised Learning} -- "For example, when transferring human skills to a humanoid robot, the motion captured from a human expert may be infeasible for the humanoid. In such a case, the demonstrated motion needs to be adapted to be feasible for the humanoid. This kind
+		of adaptation is less common in the standard supervised learning"
+		\item In imitation
+		learning, the demonstration dataset does not cover all possible
+		situations since collecting expert demonstrations to cover all situations
+		is usually too expensive and time-consuming. As a result, the learner
+		often encounters states which were not encountered by the expert during
+		demonstrations, which means that the target domain distribution is
+		different from the source distribution. Therefore, covariate shift or domain
+		adaptation is closely related to imitation learning [Bagnell, 2015].
+		\item \hlc {prior knowledge that allows for dramatically more efficient methods. Recent work by} \cite{sun2017} \hlc{demonstrates a potentially exponential decrease in sample complexity in learning a task by imitation rather than by trial-and-error reinforcement learning, and
+			empirical results have long shown such benefits} \cite{abbeel2010autonomous} [Silver et al., 2016, Kober and Peters, 2009, Abbeel et al., 2010].
 	\end{enumerate}
-	\subsection{IMPORTANT REFS}
-	\begin{enumerate}
-		\item \href{https://web.stanford.edu/class/cs237b/pdfs/lecture/cs237b_lecture_12.pdf}{Stanford lecture} -- 14 pgs - SOLID foundation - use to sort out terms:
-		\begin{itemize}
-			\item Inverse Reinforcement Learning  
-			\item Apprenticeship Learning 
-			\item Maximum Margin Planning
-			\item Maximum Entropy Inverse Reinforcement Learning
-			\item Learning From Comparisons and Physical Feedback
-		\end{itemize}
-		\item \cite{Osa-2018} - Algorithmic Perspective on IL - see images/illustrations etc.
-		\begin{enumerate}
-			\item \hlc{TAXONOMY} - add Model-based/Model-free and more
-			\item Pg. 17, Sec. 1.3 
-			\hlc{Key Differences between Imitation Learning and Supervised Learning} -- "For example, when transferring human skills to a humanoid robot, the motion captured from a human expert may be infeasible for the humanoid. In such a case, the demonstrated motion needs to be adapted to be feasible for the humanoid. This kind
-			of adaptation is less common in the standard supervised learning"
-			\item In imitation
-			learning, the demonstration dataset does not cover all possible
-			situations since collecting expert demonstrations to cover all situations
-			is usually too expensive and time-consuming. As a result, the learner
-			often encounters states which were not encountered by the expert during
-			demonstrations, which means that the target domain distribution is
-			different from the source distribution. Therefore, covariate shift or domain
-			adaptation is closely related to imitation learning [Bagnell, 2015].
-			\item \hlc {prior knowledge that allows for dramatically more efficient methods. Recent work by} \cite{sun2017} \hlc{demonstrates a potentially exponential decrease in sample complexity in learning a task by imitation rather than by trial-and-error reinforcement learning, and
-				empirical results have long shown such benefits} \cite{abbeel2010autonomous} [Silver et al., 2016, Kober and Peters, 2009, Abbeel et al., 2010].
-		\end{enumerate}
-		\item \href{https://underactuated.mit.edu/imitation.html#:~:text=Broadly%20speaking%2C%20most%20approaches%20to,the%20data%20using%20supervised%20learning.}{Russ Tedrake MIT lecture \citep{TedrakeLecture2023}} - \hlc{USE \textbf{ONLY} for this quote and cite. Else } -- ``BC is interesting! used from LLM OPEN AI to the shortest path to building `robot foundation models`"  and for the opening para "Broadly speaking, most approaches to imitation learning can be categorized as either behavior cloning (BC) or inverse reinforcement learning (IRL). Behavior cloning attempts to learn a policy directly from the data using supervised learning. Inverse RL (aka inverse optimal control) attempts to learn a cost function from the data, and then uses potentially more traditional optimal control approaches to synthesize a policy for this cost function, in the hopes of generalizing significantly beyond the demonstration data"
-		\item \href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
-	\end{enumerate}
-	\begin{enumerate}
-		\item \cite{torabi2018BCO} -- BC from observation only: Possibly in the ``future direction'' section: [This is already my words] While BC provided a good introduction to imitation learning and is a simple algorithm, \cite{torabi2018BCO} provides an interesting algorithm, named BCO($\alpha$), that allows quick learning from observations \textit{only} (i.e., \textit{without} explicit action information. This is achieved using a two-step process.
-	\end{enumerate}
-	\clearpage
-	\section{Introduction}
-	Reinforcement Learning (RL) is a machine learning technique that mimics the trial-and-error learning mechanism humans and animals use to learn a new task. A 'task' is a 'problem' such as learning to play chess, or for a robot painting, assembling automotive components is a task. The task we will focus on will be ``predictive maintenance''. The core elements of RL are shown in Figure \ref{fig:RL}.
-	\begin{figure}[h]
-		\centering
-		\includegraphics[width=0.5\linewidth]{images/RL-loop.pdf}
-		\caption{The Reinforcement Learning mechanism.}
-		\label{fig:RL}
-	\end{figure}
-	
-	The `agent' is the learner. It learns by continuously interacting with its \textit{environment} and gathering feedback for every action $A_t$ it takes. When an action ($a\in \mathcal{A}$) is performed, the environment changes from an existing `state' $S_t$ and presents a new `state' $S_{t+1}$. A state ($s\in \mathcal{S}$) represents a specific condition of the modeled environment or system and is designed to contain all the relevant information needed by the agent to make decisions to achieve the objective. This state could be classified as being `good' or `bad' for the learning objective. For example, consider learning to ride a bicycle where moving forward is desirable, whereas falling isn't. Similarly, for predictive maintenance, successfully completing a maintenance task and ensuring a longer life of equipment is a positive outcome, whereas premature failure of equipment isn't. As in humans, the objective of learning a task is achieved when the actions that generate the favorable state are mastered. RL uses rewards (or penalties) to reinforce good behavior over bad. Rewards $R_{t+1}$ are scalar values that serve as the feedback signal. Over time, the agent attempts to maximize (or minimize) the rewards, and this reinforces good actions over bad, enabling it to learn an optimal `policy'. A policy $\pi$ is a mapping from states to probability distributions over actions.
-	
-	Theoretically, RL is based on the assumption that we can model the problem as a Markov Decision Process (MDP), \citep{sutton2018}\footnote{\citet{sutton2018} provides the most comprehensive theoretical introduction to the field of RL.}. 
-	RL algorithms are broadly classified into two categories -- model-based and model-free. Model-based are methods that first learn a model of the system and then use it for learning a policy, while methods that directly update a policy (or value function), without having to explicitly learn a forward model of the system, are known as the model-free types. In both cases it is generally assumed that the reward function is known.
-	
-	There are two main parts of the model -- the reward function $R$, and the state transition probabilities, $P$. The environment's reaction when the agent takes a certain action, is defined by the model and the environment may change state depending on the action taken. Which state the environment transforms into, is decided by a state transition probability matrix. 
-	
-	For a given task, permissible actions are often pre-determined. Creating a good agent, therefore, hinges on selecting an appropriate RL algorithm based on the actions, designing the state `observation' vector, and crafting the reward function. Designing the observation vector is relatively easy -- one considers the sensory inputs available either readily or that can be made available. 
-	
-	Application of RL to the field of PdM has been covered in surveys such as \cite{Erhan2021Smart, Ren2021, Barja-Martinez2021, panzer2022, siraskar2023}
-	
-	\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles.
-	
-	\subsubsection*{\hlc{Contributions:}}
-	\begin{enumerate}
-		\item IRL for PdM survey. IRL for robotics studied extensively. PdM not so much.
-		\item Taxonomy.
-		\item Tutorial for industrial practioners.
-	\end{enumerate}
-	
-	\section{Inverse RL}
-	
-	It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
-	While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
-	
-	\subsection{Formulation} 
-	
-	The formulation of the Imitation Learning (IL) problem is on similar lines to the RL formulation. Most texts, cover RL first and then explain IL. In this article we intend to focus on IL and therefore do not delve into theoretical RL concepts. General RL fundamentals are best covered in \citep{sutton2018, stanford-lectures}. The authors have covered RL concepts in \cite{siraskar2023}, focused toward the industrial practioners and predictive maintenance in particular\footnote{Refer section ``14.1 Practitioners guide to implementation'', \citep{siraskar2023}, for practical guidelines to implement RL for predictive maintenance.}.  
-	
-	To gain a \textit{high-level} theoretical understanding of IL, we take the approach of understanding them side-by-side, in a single uninterrupted flow. In addition, we define terms with respect to the predictive maintenance problem, to help practioners appreciate the concepts better. 
-	
-	As in RL, the system is assumed to obey the Markov property and is therefore a Markov Decision Process (MDP). The system dynamics follow a probabilistic transition model governed by \eqref{eq:transition-model} i.e. the conditional probability distribution over $s_t$, given the previous action and environment's state. For a predictive maintenance problem the system state could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
-	\begin{equation}\label{eq:transition-model}
-		p(s_t \mid s_{t-1}, a_{t-1})
-	\end{equation}
-	
-	In RL, see figure \ref{fig:RL}, there exists a reward function \eqref{eq:R}, defined by the Reinforcement Learning design engineer, that can compute a reward $r$, at every time step, given the state and action taken.
-	\begin{equation}\label{eq:R}
-		r_t = R(s_t, a_t)
-	\end{equation}
-	
-	By interacting with the environment, the goal for an RL algorithm is to accumulate the highest possible reward, over the episode. An episode is a session of interaction with the environment, where the agent learns via trial-and-error. Generally, the session ends either due to a terminal state -- an example of a terminal state is reaching the end-of-life of a tool or premature breakage of the tool. Finally, when the training ends, we want to learn and generate a predictive maintenance \textit{policy}, denoted by $\pi$ \eqref{eq:pi}, that can predict or suggest the predictive maintenance action to take, given a particular state.
-	\begin{equation}\label{eq:pi}
-		a_t = \pi(s_t).
-	\end{equation}
-	
-	For an IL problem setting, it is the reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\xi$ is a sequence of state-action pairs:
-	\begin{equation}\label{eq:demo}
-		\xi = \{(s_0, a_0), (s_1, a_1), ...\},
-	\end{equation}
-	where these pairs are governed by the expert's policy, denoted by $\pi^{*}$.
-	
-	Stated formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\xi_0, \xi_1, \xi_2, ... \xi_D\}$, from an expert policy $\pi^{*}$ to find a policy $\hat{\pi}^{*}$ that imitates the expert policy.
-	
-	In the industrial maintenance context, the objective of imitation learning is to generate a predictive maintenance policy $\pi$ (simpler form of the $\hat{\pi}^{*}$, where the $\hat{}$ is the statistical designation of an estimated value) that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
-	
-	\hlc{PLACEMENT}: Reward ambiguity is the primary challenge associated with inverse reinforcement learning, \citep{ng2000algorithms, stanford-lectures, baheri2023}.
-	
-	%In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
-	
-	\subsection{Imitation Learning approaches} 
-	
-	Imitation Learning approaches can be classified into two primary approaches: in the first we directly learn to imitate the expert's policy and in the second we \textit{indirectly} imitate the policy by attempting to learn the expert's \textit{reward function}. 
-	
-	%% In this section we first outline the two classical approaches to imitation learning (behavior cloning and the DAgger algorithm) that focus on directly imitating the policy. This is followed by Then a set of approaches for learning the expert’s reward function will be discussed, which is commonly referred to as inverse reinforcement learning. The chapter will then conclude with a couple of short discussions into related topics on learning from experts (e.g. through comparisons or physical feedback) as well as on interaction-aware control"}
+	\item \href{https://underactuated.mit.edu/imitation.html#:~:text=Broadly%20speaking%2C%20most%20approaches%20to,the%20data%20using%20supervised%20learning.}{Russ Tedrake MIT lecture \citep{TedrakeLecture2023}} - \hlc{USE \textbf{ONLY} for this quote and cite. Else } -- ``BC is interesting! used from LLM OPEN AI to the shortest path to building `robot foundation models`"  and for the opening para "Broadly speaking, most approaches to imitation learning can be categorized as either behavior cloning (BC) or inverse reinforcement learning (IRL). Behavior cloning attempts to learn a policy directly from the data using supervised learning. Inverse RL (aka inverse optimal control) attempts to learn a cost function from the data, and then uses potentially more traditional optimal control approaches to synthesize a policy for this cost function, in the hopes of generalizing significantly beyond the demonstration data"
+	\item \href{https://ai.stanford.edu/~ang/papers/icml04-apprentice.pdf}{Apprenticeship Learning via Inverse Reinforcement Learning}
+\end{enumerate}
+\begin{enumerate}
+	\item \cite{torabi2018BCO} -- BC from observation only: Possibly in the ``future direction'' section: [This is already my words] While BC provided a good introduction to imitation learning and is a simple algorithm, \cite{torabi2018BCO} provides an interesting algorithm, named BCO($\alpha$), that allows quick learning from observations \textit{only} (i.e., \textit{without} explicit action information. This is achieved using a two-step process.
+\end{enumerate}
+\clearpage
+\section{Introduction}
+
+\textcolor{blue}{Most developed countries are facing a crisis. According to the IMF and Fortune, an ever increasing proportion of expert work force retiring combined with fewer workers}, \citep{Prakash2024Germanys, Fletcher2024Germanys}. \textcolor{red}{Right now, one-quarter of the manufacturing workforce is over 55 years old. Meanwhile, the manufacturing industry is struggling to attract enough younger workers with the right skills and qualifications.} \href{https://nam.org/new-report-dives-into-retaining-the-aging-manufacturing-workforce-5579/?stream=workforce}{nam.org}
+
+Reinforcement Learning (RL) is a machine learning technique that mimics the trial-and-error learning mechanism humans and animals use to learn a new task. A 'task' is a 'problem' such as learning to play chess, or for a robot painting, assembling automotive components is a task. The task we will focus on will be ``predictive maintenance''. The core elements of RL are shown in Figure \ref{fig:RL}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\linewidth]{images/RL-loop.pdf}
+	\caption{The Reinforcement Learning mechanism.}
+	\label{fig:RL}
+\end{figure}
+
+The `agent' is the learner. It learns by continuously interacting with its \textit{environment} and gathering feedback for every action $A_t$ it takes. When an action ($a\in \mathcal{A}$) is performed, the environment changes from an existing `state' $S_t$ and presents a new `state' $S_{t+1}$. A state ($s\in \mathcal{S}$) represents a specific condition of the modeled environment or system and is designed to contain all the relevant information needed by the agent to make decisions to achieve the objective. This state could be classified as being `good' or `bad' for the learning objective. For example, consider learning to ride a bicycle where moving forward is desirable, whereas falling isn't. Similarly, for predictive maintenance, successfully completing a maintenance task and ensuring a longer life of equipment is a positive outcome, whereas premature failure of equipment isn't. As in humans, the objective of learning a task is achieved when the actions that generate the favorable state are mastered. RL uses rewards (or penalties) to reinforce good behavior over bad. Rewards $R_{t+1}$ are scalar values that serve as the feedback signal. Over time, the agent attempts to maximize (or minimize) the rewards, and this reinforces good actions over bad, enabling it to learn an optimal `policy'. A policy $\pi$ is a mapping from states to probability distributions over actions.
+
+Theoretically, RL is based on the assumption that we can model the problem as a Markov Decision Process (MDP), \citep{sutton2018}\footnote{\citet{sutton2018} provides the most comprehensive theoretical introduction to the field of RL.}. 
+RL algorithms are broadly classified into two categories -- model-based and model-free. Model-based are methods that first learn a model of the system and then use it for learning a policy, while methods that directly update a policy (or value function), without having to explicitly learn a forward model of the system, are known as the model-free types. In both cases it is generally assumed that the reward function is known.
+
+There are two main parts of the model -- the reward function $R$, and the state transition probabilities, $P$. The environment's reaction when the agent takes a certain action, is defined by the model and the environment may change state depending on the action taken. Which state the environment transforms into, is decided by a state transition probability matrix. 
+
+For a given task, permissible actions are often pre-determined. Creating a good agent, therefore, hinges on selecting an appropriate RL algorithm based on the actions, designing the state `observation' vector, and crafting the reward function. Designing the observation vector is relatively easy -- one considers the sensory inputs available either readily or that can be made available. 
+
+Application of RL to the field of PdM has been covered in surveys such as \cite{Erhan2021Smart, Ren2021, Barja-Martinez2021, panzer2022, siraskar2023}
+
+\cite{panzer2022, siraskar2023} are surveys that cover the application of RL to the field of industrial maintenance. The results in \cite{panzer2022} (Table 6) cover 8 applications, while \cite{siraskar2023} (Tables 4, 5, 7, and 8) survey over 50 articles.
+
+\subsubsection*{\hlc{Contributions:}}
+\begin{enumerate}
+	\item IRL for PdM survey. IRL for robotics studied extensively. PdM not so much.
+	\item Taxonomy.
+	\item Tutorial for industrial practioners.
+\end{enumerate}
+
+\section{Inverse RL}
+
+It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
+While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
+
+\subsection{Formulation} 
+
+The formulation of the Imitation Learning (IL) problem is on similar lines to the RL formulation. Most texts, cover RL first and then explain IL. In this article we intend to focus on IL and therefore do not delve into theoretical RL concepts. General RL fundamentals are best covered in \citep{sutton2018, stanford-lectures}. The authors have covered RL concepts in \cite{siraskar2023}, focused toward the industrial practioners and predictive maintenance in particular\footnote{Refer section ``14.1 Practitioners guide to implementation'', \citep{siraskar2023}, for practical guidelines to implement RL for predictive maintenance.}.  
+
+To gain a \textit{high-level} theoretical understanding of IL, we take the approach of understanding them side-by-side, in a single uninterrupted flow. In addition, we define terms with respect to the predictive maintenance problem, to help practioners appreciate the concepts better. 
+
+As in RL, the system is assumed to obey the Markov property and is therefore a Markov Decision Process (MDP). The system dynamics follow a probabilistic transition model governed by \eqref{eq:transition-model} i.e. the conditional probability distribution over $s_t$, given the previous action and environment's state. For a predictive maintenance problem the system state could be a set of sensor readings of the equipment, and could well include additional information, for e.g. the details of previous maintenance, manufacturer's characteristics data for the tool.
+\begin{equation}\label{eq:transition-model}
+	p(s_t \mid s_{t-1}, a_{t-1})
+\end{equation}
+
+In RL, see figure \ref{fig:RL}, there exists a reward function \eqref{eq:R}, defined by the Reinforcement Learning design engineer, that can compute a reward $r$, at every time step, given the state and action taken.
+\begin{equation}\label{eq:R}
+	r_t = R(s_t, a_t)
+\end{equation}
+
+By interacting with the environment, the goal for an RL algorithm is to accumulate the highest possible reward, over the episode. An episode is a session of interaction with the environment, where the agent learns via trial-and-error. Generally, the session ends either due to a terminal state -- an example of a terminal state is reaching the end-of-life of a tool or premature breakage of the tool. Finally, when the training ends, we want to learn and generate a predictive maintenance \textit{policy}, denoted by $\pi$ \eqref{eq:pi}, that can predict or suggest the predictive maintenance action to take, given a particular state.
+\begin{equation}\label{eq:pi}
+	a_t = \pi(s_t).
+\end{equation}
+
+For an IL problem setting, it is the reward function, that we do not want to design, but rather learn and generate, from demonstrations provided by an expert. Given access to a set of demonstrations $\mathcal{D}$, where each demonstration $\xi$ is a sequence of state-action pairs:
+\begin{equation}\label{eq:demo}
+	\xi = \{(s_0, a_0), (s_1, a_1), ...\},
+\end{equation}
+where these pairs are governed by the expert's policy, denoted by $\pi^{*}$.
+
+Stated formally, the Imitation Learning Problem is defined as: For a system with states $s \in S$ and actions $a \in A$, governed by a transition model $p$ \eqref{eq:transition-model}, the imitation learning problem is to leverage a set of demonstrations $\mathcal{D} = \{\xi_0, \xi_1, \xi_2, ... \xi_D\}$, from an expert policy $\pi^{*}$ to find a policy $\hat{\pi}^{*}$ that imitates the expert policy.
+
+In the industrial maintenance context, the objective of imitation learning is to generate a predictive maintenance policy $\pi$ (simpler form of the $\hat{\pi}^{*}$, where the $\hat{}$ is the statistical designation of an estimated value) that reproduces the expertise of the predictive maintenance engineer i.e. a policy that imitates the expert policy $\pi^{*}$.
+
+\hlc{PLACEMENT}: Reward ambiguity is the primary challenge associated with inverse reinforcement learning, \citep{ng2000algorithms, stanford-lectures, baheri2023}.
+
+%In imitation learning, a dataset of demonstrations $\mathcal{D}$ consists pairs of trajectories $\tau$ and \textit{optionally} could include reward signals $r$; $\mathcal{D} = {(\tau_i, r_i)}^N_{i=1}$.
+
+\subsection{Imitation Learning approaches} 
+
+Imitation Learning approaches can be classified into two primary approaches: in the first we directly learn to imitate the expert's policy and in the second we \textit{indirectly} imitate the policy by attempting to learn the expert's \textit{reward function}. 
+
+%% In this section we first outline the two classical approaches to imitation learning (behavior cloning and the DAgger algorithm) that focus on directly imitating the policy. This is followed by Then a set of approaches for learning the expert’s reward function will be discussed, which is commonly referred to as inverse reinforcement learning. The chapter will then conclude with a couple of short discussions into related topics on learning from experts (e.g. through comparisons or physical feedback) as well as on interaction-aware control"}
 
 \subsection{Behavioral Cloning}
 
 The concept of learning from demonstrations for first conceptualized in '\citefield{BC-bain1995}{title}' by \cite{BC-bain1995}. Their seminal work was grounded around control theory. They defined behavioral cloning as the process of logging data from skilled, human operators, and providing these as inputs to an induction program which produces a control strategy ('policy' in RL terminology) for a complex control task. They defined the output of the cloning process as a set of ``situation-action'' rules that can achieve the control goal by creating a matrix (table) of states of the process to a set of applicable actions.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=\linewidth]{images/BC_Diagram.png}
-	\caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
-	\label{fig:BC}
+\centering
+\includegraphics[width=\linewidth]{images/BC_Diagram.png}
+\caption{Behavioral Cloning. Demonstrations from Expert include Actions (e.g. maintenance levels L-1, L-2 or Replace tool *R*) and States (from e.g. equipment health readings from sensors)}
+\label{fig:BC}
 \end{figure}
 
 Having an expert generate a set of demonstrations $\xi \in \mathcal{D}$, Behavioral Cloning approaches determine a policy $\pi$ that imitates the expert. In the simplest form, this can be accomplished through supervised learning techniques \citep{abbeel2004apprenticeship, yue2018imitation}, where the goal is to solve the optimization problem \eqref{eq:BC} i.e. to minimize the difference between the learned policy and expert demonstrations, using a cost or loss function $L$, \citep{stanford-lectures}.  
 
 \begin{equation}\label{eq:BC}
-	\hat{\pi}^* = \arg\min_{\pi} \sum_{\xi \in \mathcal{D}} \sum_{s \in \xi} L(\pi(s), \pi^*(s)),
+\hat{\pi}^* = \arg\min_{\pi} \sum_{\xi \in \mathcal{D}} \sum_{s \in \xi} L(\pi(s), \pi^*(s)),
 \end{equation}
 where $L$ is the loss function, $\pi^*(s)$ is the expert's predictive maintenance policy that suggests the maintenance action for the state $s$, and $\hat{\pi}^*$ is the learned, often approximated, policy.
 
@@ -195,10 +205,10 @@ The BC algorithm is therefore simple -- at every time-step $t$ it makes the basi
 As depicted in figure \ref{fig:BC}, the learning processes depends solely on the set of demonstrations provided by the expert. It is often difficult for the experts to cover the entire state space, if they do not uniformly sample the state space or provide samples according to convenience.
 
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
-	\caption{Distributional mismatch (illustrative and exaggerated).}
-	\label{fig:DistribShift}
+\centering
+\includegraphics[width=0.6\linewidth]{images/DistributionalShift.png}
+\caption{Distributional mismatch (illustrative and exaggerated).}
+\label{fig:DistribShift}
 \end{figure}
 
 In an industrial maintenance situation this could happen, if for example, the expert picks a certain time of day and a short time period within the entire span of equipment or tool life to provide the demonstrations $\mathcal{D}$.  This will result in a \textit{temporal sequence} of states and actions with a particular distribution. The learned policy will then perform poorly when faced with states not present in $\mathcal{D}$. Behavioral cloning will then \textit{estimate} the policy ${\hat{\pi}}^*$ with its own slightly different distribution of states and these states  that will be visited. The algorithm then begins to drift at every step of learning, leading to compounding errors. This ``distributional shift'', Fig. \ref{fig:DistribShift}, is a major challenge in imitation learning, \citep{yue2018imitation, stanford-lectures}. \textcolor{red}{PLACEMENT -- the importance of randomly sampling and non sequential examples - also PROVIDE DIAGRAM!} 
@@ -212,80 +222,32 @@ The DAgger algorithm is presented in Algorithm \ref{algo:DAgger}. In the first i
 \textbullet\ \quad Parameter $\beta$ to set how data is obtained from from the expert's behavior. $\beta_i = p^{i-1}$ sets an exponentially decaying probability of using the expert, where $p \in \{0,1, 0.2, ..., 0.9\}$\\
 
 \begin{algorithm}
-	\onehalfspacing
-	\caption{DAgger Dataset Aggregation algorithm, \citep{Dagger-Ross2010}}\label{algo:DAgger}
-	\begin{algorithmic}[1]
-		% \State {Data: $\pi^*$}
-		% \State {Result: $\hat{\pi}^*$}
-		\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
-		\State {Initialize $\hat{\pi}_i$}
-		\For {i=1 to N}
-		\State {$\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
-		\State {Rollout policy $\pi_i$ to sample trajectory $\tau = \{s_0, s_1, ..., s_T\}$ }
-		\State {Query expert $\pi^*$ for actions on states provided by $\pi_i$}
-		\State {Create dataset $\mathcal{D}_i = \{(s_0, \pi^*(s_0)), (s_1, \pi^*(s_1)), ..., (s_T, \pi^*(s_T))\}$}
-		\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i $}
-		\State {Retrain policy $\hat{\pi}_{i+1}$ using aggregated dataset $\mathcal{D}$}
-		\EndFor
-		\State {Return best $\hat{\pi}_i$ on validation}
-	\end{algorithmic} 
+\onehalfspacing
+\caption{DAgger Dataset Aggregation algorithm, \citep{Dagger-Ross2010}}\label{algo:DAgger}
+\begin{algorithmic}[1]
+	% \State {Data: $\pi^*$}
+	% \State {Result: $\hat{\pi}^*$}
+	\State {Initialize $\mathcal{D} \leftarrow \emptyset$}
+	\State {Initialize $\hat{\pi}_i$}
+	\For {i=1 to N}
+	\State {$\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$}
+	\State {Rollout policy $\pi_i$ to sample trajectory $\tau = \{s_0, s_1, ..., s_T\}$ }
+	\State {Query expert $\pi^*$ for actions on states provided by $\pi_i$}
+	\State {Create dataset $\mathcal{D}_i = \{(s_0, \pi^*(s_0)), (s_1, \pi^*(s_1)), ..., (s_T, \pi^*(s_T))\}$}
+	\State {Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \cup \mathcal{D}_i $}
+	\State {Retrain policy $\hat{\pi}_{i+1}$ using aggregated dataset $\mathcal{D}$}
+	\EndFor
+	\State {Return best $\hat{\pi}_i$ on validation}
+\end{algorithmic} 
 \end{algorithm}
 
 \textcolor{red}{From ROSS: In other words, DAGGER proceeds by collecting a dataset 	at each iteration under the current policy and trains the next 	policy under the aggregate of all collected datasets. The intuition 	behind this algorithm is that over the iterations, we 	are building up the set of inputs that the learned policy is 	likely to encounter during its execution based on previous experience (training iterations).}
 
-\begingroup
-\setlength{\tabcolsep}{6pt}
-\begin{table}[h!]
-	\centering
-	\renewcommand{\arraystretch}{1.5} 
-	\begin{tabular}{L{6cm} L{3cm} L{3cm}}
-		\midrule[0.01pt]
-		& \textbf{Behavioural Cloning} & \textbf{Inverse Reinforcement Learning}\\
-		\midrule[0.01pt]
-		Direct policy learning & Yes & No \\
-		Reward learning & No & Yes \\
-		Access to environment & No & Yes \\
-		Pre-collected expert demonstrations & Yes & Yes \\
-		Need for interactive demonstrator & No & No \\
-		\midrule[0.01pt]
-	\end{tabular}
-	\caption{Types of Imitation Learning, \cite{yue2018imitation}}
-	\label{tbl:BC_IRL}
-\end{table}
-\endgroup
-
-\subsection{Taxonomy}\label{sec:Taxonomy}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=0.4\linewidth]{images/IRL_Taxonomy.png}
-	\caption{Taxonomy of Imitation Learning techniques.}
-	\label{fig:taxonomy}
-\end{figure}
-
-\clearpage
 \section{Survey of IRL methods for predictive maintenance}\label{sec:SLR}
 
-The field of IL and IRL has been surveyed by researchers. Each of the six surveys are exhaustive and while some cover the field in general, some are focused on a particular domain. See Table \ref{tbl:Surveys} for details. As of 15-Sep-2024, we see that \textit{none} of the six surveys cover industrial predictive maintenance. And the reason for this is obvious when we search for research on imitation learning applied to predictive maintenance. As seen in Table \ref{tbl:SLR-PdM} and Fig. \ref{fig:SLR}, only 3 artciles come up when we search for IL or IRL applied to PdM. This emphasizes the importance of our survey. 
+The field of IL and IRL has been surveyed by researchers. Each of the \textbf{nine} surveys are exhaustive and while some cover the field in general, some are focused on a particular domain. See Table \ref{tbl:Surveys} for details. As of 15-Sep-2024, we see that \textit{none} of the nine surveys cover industrial predictive maintenance. The latest survey \citet{zare2024survey}
 
-\begingroup
-\setlength{\tabcolsep}{6pt}
-\begin{table}[h!]
-	% \centering
-	\renewcommand{\arraystretch}{1.5}
-	\fontfamily{lmss}\selectfont
-	\begin{tabular}{L{2cm} L{5cm} L{4cm} L{2cm}}
-		\midrule[0.01pt]
-		\textbf{Category} & \textbf{Focus} & \textbf{Survey articles} & \textbf{Covers PdM?}\\ \midrule[0.01pt]
-		Imitation Learning & Autonomous vehicles & \citet{le2022survey} & No\\
-		& Robotics, robot arm manipulation & \citet{fang2019survey}, \citet{tai2016survey} & No\\
-		& General.\par(Covers human computer interaction and computer games in addition to robotics and self-driving cars.) & \citet{hussein2017survey} & No\\ \midrule[0.005pt]
-		Inverse Reinforcement Learning & General & \citet{adams2022survey}, \citet{arora2021survey} & No\\
-		\midrule[0.01pt]
-	\end{tabular}
-	\caption{Important research surveys.} \label{tbl:Surveys}
-\end{table}
-\endgroup
+And the reason for this is obvious when we search for research on imitation learning applied to predictive maintenance. As seen in Table \ref{tbl:SLR-PdM} and Fig. \ref{fig:SLR}, only 3 artciles come up when we search for IL or IRL applied to PdM. This emphasizes the importance of our survey. 
 
 \begin{figure}[H]
 	\begin{floatrow}
@@ -314,8 +276,29 @@ The field of IL and IRL has been surveyed by researchers. Each of the six survey
 	\end{floatrow}%
 \end{figure}
 
-Search queries:
+\begingroup
+\setlength{\tabcolsep}{6pt}
+\begin{table}[h!]
+	% \centering
+	\renewcommand{\arraystretch}{1.5}
+	\fontfamily{lmss}\selectfont
+	\begin{tabular}{L{2cm} L{5cm} L{4cm} L{2cm}}
+		\midrule[0.01pt]
+		\textbf{Category} & \textbf{Focus} & \textbf{Survey articles} & \textbf{Covers PdM?}\\ \midrule[0.01pt]
+		Imitation Learning & Autonomous vehicles & \citet{le2022survey} & No\\
+		& Robotics, robot arm manipulation & \citet{fang2019survey}, \citet{tai2016survey}, \citet{schaal1999}  & No\\
+		& General \par(Covers human computer interaction and computer games in addition to robotics and self-driving cars.) & \citet{zare2024survey}, \citet{hussein2017survey} & No\\
+		
+		 \midrule[0.005pt]
+		Inverse Reinforcement Learning & General & \citet{adams2022survey}, \citet{arora2021survey}, \citet{zhifei2012survey} & No\\
+		\midrule[0.01pt]
+	\end{tabular}
+	\caption{Original surveys covering Imitation Learning and Inverse Reinforcement Learning.} \label{tbl:Surveys}
+\end{table}
+\endgroup
 
+
+Search queries:
 \begingroup
 \setlength{\tabcolsep}{6pt}
 \begin{table}[h!]
@@ -326,9 +309,9 @@ Search queries:
 		\midrule[0.01pt]
 		\textbf{Category} & \textbf{Query} \\ \midrule[0.01pt]
 		Imitation Learning in general &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning")} \\
-		Imitation Learning applied to robotics &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("robot")} \\
-		Imitation Learning applied to autonomous vehicles &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("autonomous car" OR "autonomous vehicle" OR "autonomous driving" OR "self driving" OR "self-driving")} \\ 
-		Imitation Learning applied to predictive maintenance &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("predictive maintenance" OR "preventive maintenance" OR "prognostic")} \\ 
+		Application to robotics &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("robot")} \\
+		Application to autonomous vehicles &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("autonomous car" OR "autonomous vehicle" OR "autonomous driving" OR "self driving" OR "self-driving")} \\ 
+		Application to predictive maintenance &  \texttt{("Inverse Reinforcement Learning" OR "Imitation Learning" OR "Apprenticeship Learning") AND ("predictive maintenance" OR "preventive maintenance" OR "prognostic")} \\ 
 		\midrule[0.01pt]
 	\end{tabular}
 	\caption{Search queries} \label{tbl:SLRQueries}
@@ -336,8 +319,35 @@ Search queries:
 \endgroup
 
 
+\subsection{Taxonomy}\label{sec:Taxonomy}
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.4\linewidth]{images/IRL_Taxonomy.png}
+	\caption{Taxonomy of Imitation Learning techniques.}
+	\label{fig:taxonomy}
+\end{figure}
 
+\begingroup
+\setlength{\tabcolsep}{6pt}
+\begin{table}[h!]
+	\centering
+	\renewcommand{\arraystretch}{1.5} 
+	\begin{tabular}{L{6cm} L{3cm} L{3cm}}
+		\midrule[0.01pt]
+		& \textbf{Behavioural Cloning} & \textbf{Inverse Reinforcement Learning}\\
+		\midrule[0.01pt]
+		Direct policy learning & Yes & No \\
+		Reward learning & No & Yes \\
+		Access to environment & No & Yes \\
+		Pre-collected expert demonstrations & Yes & Yes \\
+		Need for interactive demonstrator & No & No \\
+		\midrule[0.01pt]
+	\end{tabular}
+	\caption{Types of Imitation Learning, \cite{yue2018imitation}}
+	\label{tbl:BC_IRL}
+\end{table}
+\endgroup
 
 
 
@@ -646,13 +656,3 @@ Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
 \printbibliography %Prints bibliography
 
 \end{document}
-
-% A search for surveys covering Imitation Learning:\\
-% \textbullet \quad IRL surveys: \cite{adams2022survey, arora2021survey}\\
-% \textbullet \quad Imitation Learning surveys: \cite{le2022survey, tai2016survey, hussein2017survey, fang2019survey, zare2024survey, zhifei2012survey}\\\\
-
-% % While most are general:\\
-% % \textbullet \quad \cite{hussein2017survey} covers robots, self-driving vehicles, human computer interaction and computer games.\\\\
-% %Some are specialized surveys:\\
-% %\textbullet \quad Autonomous Vehicles - \cite{le2022survey}\\
-% %\textbullet \quad Robotics - \cite{fang2019survey, tai2016survey}\\
