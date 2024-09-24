@@ -2,7 +2,7 @@
 %% Imitation Learning applied to predictive maintenance
 %%
 %% V.1.0: Re-baselined. 17-Sep-2024
-%% V.1.1: 18-Sep-2024. Comparison of %
+%% V.1.2: 20-Sep-2024. Added Osa.
 %% --------------------------------------------------------------
 
 \documentclass{article}
@@ -17,6 +17,7 @@
 \hypersetup{colorlinks = true, urlcolor = blue, linkcolor = blue, citecolor = blue}
 \usepackage{xcolor, soul} 	% Highlights
 \usepackage{booktabs}		% Tables
+\usepackage{multirow}		% Merged row
 \usepackage{array}			% Tables with word-wrap
 \usepackage{ragged2e}		% Ragged edges in tables
 \usepackage{arydshln} 		% dashed lines in tables
@@ -25,6 +26,7 @@
 \usepackage{amsmath}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{chronosys}
 
 \newfloatcommand{capbtabbox}{table}[][\FBwidth] % Bottom caption, box width adjusted to content
 
@@ -61,8 +63,9 @@
 \begin{enumerate}
 	\item Tech background: First finish STANFORD
 	\item \quad BC - only - max Dagger - rest say beyond scope
-	\item Survey! === Sec.\ref{sec:SLR}
-	\item \quad Taxonomy --- Stanford lec + OSA + 1 survey is enough === Sec.\ref{sec:Taxonomy}
+	\item Sec.\ref{sec:SLR}: Survey
+	\item \quad Only 3 predictive maintenance  articles - create some sort of table
+	\item \quad Sec.\ref{sec:Taxonomy}: \textbf{Taxonomy} -- Stanford lec + \cite{zare2024survey} i.e. 1 latest survey.
 	\item Tutorial! === Sec.\ref{sec:Tutorial}
 \end{enumerate}
 \subsection{IMPORTANT REFS}
@@ -245,7 +248,7 @@ The DAgger algorithm is presented in Algorithm \ref{algo:DAgger}. In the first i
 
 \section{Survey of IRL methods for predictive maintenance}\label{sec:SLR}
 
-The field of IL and IRL has been surveyed in detail by researchers. We scanned nine surveys -- from the earliest survey \citet{fang2019survey}, to the latest \citet{zare2024survey}. Each of the \textbf{nine} surveys are exhaustive and while some cover the field in general, some are focused on a particular domain. See Table \ref{tbl:Surveys} for details. As of 15-Sep-2024, we see that \textit{none} of the nine surveys cover industrial predictive maintenance. The latest survey \citet{zare2024survey}
+The field of IL and IRL has been surveyed in detail by researchers. We scanned \textcolor{red}{ten} surveys -- from the earliest survey \citet{Osa-2018}, to the latest \citet{zare2024survey}. Each of the \textbf{\textcolor{red}{ten}} surveys are exhaustive and while some cover the field in general, some are focused on a particular domain. See Table \ref{tbl:Surveys} for details. As of 15-Sep-2024, we see that \textit{none} of the nine surveys cover industrial predictive maintenance. The latest survey \citet{zare2024survey}
 
 And the reason for this is obvious when we search for research on imitation learning applied to predictive maintenance. As seen in Table \ref{tbl:SLR-PdM} and Fig. \ref{fig:SLR}, only 3 artciles come up when we search for IL or IRL applied to PdM. This emphasizes the importance of our survey. \\
 
@@ -259,6 +262,22 @@ And the reason for this is obvious when we search for research on imitation lear
 \qquad	- Robotics\quad	46.67\%\\
 \qquad	- Autonomous Driving\quad	17.33\%\\
 \qquad - PdM\quad	NONE\%\\\par
+
+
+\begin{figure}[h]	
+	\startchronology[startyear=1940, startdate=false, stopdate=false, arrow=false, color=codegray, height=.5ex]
+	\chronoevent[textwidth=2.25cm]{1947}{Monte Carlo\endgraf \texttt{    }sampling}
+	\chronoevent[markdepth=-20pt]{1959}{TD Learning}
+	\chronoevent{1989}{Q-Learning}
+	\chronoevent[markdepth=-20pt]{1992}{\textcolor{blue}{REINFORCE}}
+	\chronoevent{2013}{DQN}
+	\chronoevent[markdepth=-20pt]{2016}{A2C}
+	\chronoevent[markdepth=50pt]{2017}{PPO}
+	\stopchronology
+	\vspace{-36pt}
+	\caption{Time line of significant RL algorithms}
+	\label{fig:TimeLine}
+\end{figure}
 
 
 \begin{figure}[H]
@@ -288,6 +307,7 @@ And the reason for this is obvious when we search for research on imitation lear
 	\end{floatrow}%
 \end{figure}
 
+
 \begingroup
 \setlength{\tabcolsep}{6pt}
 \begin{table}[h!]
@@ -297,11 +317,11 @@ And the reason for this is obvious when we search for research on imitation lear
 	\begin{tabular}{L{2cm} L{5cm} L{4cm} L{2cm}}
 		\midrule[0.01pt]
 		\textbf{Category} & \textbf{Focus} & \textbf{Survey articles} & \textbf{Covers PdM?}\\ \midrule[0.01pt]
-		Imitation Learning & Autonomous vehicles & \citet{le2022survey} & No\\
-		& Robotics, robot arm manipulation & \citet{fang2019survey}, \citet{tai2016survey}, \citet{schaal1999}  & No\\
-		& General \par(Covers human computer interaction and computer games in addition to robotics and self-driving cars.) & \citet{zare2024survey}, \citet{hussein2017survey} & No\\
 		
-		 \midrule[0.005pt]
+		Imitation Learning (includes IRL) & General \par(Covers human computer interaction and computer games in addition to robotics and self-driving cars.) & \citet{zare2024survey}, \citet{hussein2017survey} & No\\
+		& Robotics, robot arm manipulation & \citet{Osa-2018}, \citet{fang2019survey}, \citet{tai2016survey}, \citet{schaal1999}  & No\\
+		& Autonomous vehicles & \citet{le2022survey} & No\\
+		\midrule[0.01pt]
 		Inverse Reinforcement Learning & General & \citet{adams2022survey}, \citet{arora2021survey}, \citet{zhifei2012survey} & No\\
 		\midrule[0.01pt]
 	\end{tabular}
