@@ -110,6 +110,10 @@
 
 \textcolor{blue}{Most developed countries are facing a crisis. According to the IMF and Fortune, an ever increasing proportion of expert work force retiring combined with fewer workers}, \citep{Prakash2024Germanys, Fletcher2024Germanys}. \textcolor{red}{Right now, one-quarter of the manufacturing workforce is over 55 years old. Meanwhile, the manufacturing industry is struggling to attract enough younger workers with the right skills and qualifications.} \href{https://nam.org/new-report-dives-into-retaining-the-aging-manufacturing-workforce-5579/?stream=workforce}{nam.org}
 
+Reinforcement Learning (RL), is a powerful and effective branch of AI that provides a framework for solving sequential decision making problems, such as robotics, complex industrial control systems, autonomous driving and games as well as predictive maintenance. Imitation Learning (IL) is a related AI field that focuses on learning a policy from a collection of demonstrations, often provided by human experts. 
+
+The focus of our article is to provide a practical tutorial on applying Behavioral Cloning, an Imitation Learning algorithm , to the field of predictive maintenance. In the process we will provide a brief technical background on Imitation Learning, conduct a survey to study how other researchers have applied Imitation Learning to predictive maintenance and present a taxonomy of Imitation Learning methods.  
+
 Reinforcement Learning (RL) is a machine learning technique that mimics the trial-and-error learning mechanism humans and animals use to learn a new task. A 'task' is a 'problem' such as learning to play chess, or for a robot painting, assembling automotive components is a task. The task we will focus on will be ``predictive maintenance''. The core elements of RL are shown in Figure \ref{fig:RL}.
 \begin{figure}[h]
 	\centering
@@ -246,7 +250,7 @@ The DAgger algorithm is presented in Algorithm \ref{algo:DAgger}. In the first i
 \end{algorithmic} 
 \end{algorithm}
 
-While Behavioral Cloning seems to be an early method of IL, it by no means is trivial. Professor Russ Tedrake\footnote{Director of the Center for Robotics, MIT. Vice President, Robotics Research, Toyota Research Institute.} in his book (\cite{Russ2024}, Chapter 21) says:
+While Behavioral Cloning is an an early IL method and is based on supervised learning, it is gaining renewed interest. Professor Russ Tedrake\footnote{Director of the Center for Robotics, MIT. Vice President, Robotics Research, Toyota Research Institute.} in his book (\cite{Russ2024}, Chapter 21) says:
 
 \say{I think it's fair to say that today, in 2024, behavior cloning is once again taking the robotics world by storm.}
 
