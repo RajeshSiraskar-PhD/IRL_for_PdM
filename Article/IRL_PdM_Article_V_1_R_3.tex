@@ -1,10 +1,10 @@
-%% --------------------------------------------------------------
+%% -------------------------------------------------------------------------------
 %% Imitation Learning applied to predictive maintenance
 %%
 %% V.1.0: Re-baselined. 17-Sep-2024
-%% V.1.2: 20-Sep-2024. Added Osa. Timeline
-%% V.1.2: 03-Oct-2024. Added business part in intro.
-%% --------------------------------------------------------------
+%% V.1.2: 20-Sep-2024. Added Osa. Timeline. 03-Oct-2024. Added business part in intro.
+%% V.1.3: 05-Oct-2024: Added Refs to .bib and begin SLR section
+%% -------------------------------------------------------------------------------
 
 \documentclass{article}
 \usepackage[top=2in, left=1.5in,right=1in,bottom=1in]{geometry} 
@@ -52,7 +52,7 @@
 
 %\title{Beyond Reinforcement Learning: A Tutorial on Applying Reward Learning to Predictive Maintenance}
 %\title{Beyond Reinforcement Learning: Learning to Imitate the Predictive Maintenance Engineer}
-\title{Beyond Reinforcement Learning: Learning to Imitate the Expert Predictive Maintenance Engineer.\\\textcolor{red}{\normalsize{V.1.1}}}
+\title{Beyond Reinforcement Learning: Learning to Imitate the Expert Predictive Maintenance Engineer.\\\textcolor{red}{\normalsize{V.1.3}}}
 \author{Rajesh Siraskar}
 
 \begin{document}
@@ -146,7 +146,7 @@ Application of RL to the field of PdM has been covered in surveys such as \cite{
 \section{Inverse RL}
 
 It is the design of the reward function that is difficult \citep{abbeel2004apprenticeship, ng2000algorithms}.
-While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the diffculty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
+While RL is an exceptional technique to create predictive mainteance solutions; \cite{abbeel2004apprenticeship} mention how, from their experiences gained from applying RL algorithms to multiple industrial problems as well as their conversations with engineers in the industry, it is the difficulty of manually hand-crafting the reward function that prevents a broader application of RL in the industry.
 
 \subsection{Formulation} 
 
@@ -440,8 +440,6 @@ Search queries:
 \end{table}
 \endgroup
 
-
-
 Returned only TWO article: \cite{Chen-2021-Temporal} and \cite{Pinciroli2022-752} 	
 \hlc{WordSmith from}: \cite{berant2015imitation} -- To introduce adding the PdM..."To this end, we borrow ideas from imitation learning for structured prediction (xxx). Specifically, we cast agenda-based semantic parsing as a Markov decision process, where the goal is to learn a policy, that given a state (i.e., the current chart and agenda), chooses the best next action (i.e., the parse to pop from the agenda). The supervision signal is used to generate a sequence of"\\
 A history $h = (s_1, a_1, . . . , a_T, s_{T+1})$ (\hlc{add a nice Figure! $\rightarrow$ SEE THE COMPRESSED HISTORY section in this article - as it mentions NON sequentioal }) is a sequence of states and actions, such that ... The policy for choosing predictive maintenance actions induces a distribution over histories \\
@@ -460,6 +458,73 @@ The maturity of sensor network technologies has facilitated the emergence of an 
 
 %Equipment of renewable energy systems are being supported by Prognostics  Health Management (PHM) capabilities to estimate their current health state and predict their Remaining Useful Life (RUL). The PHM health state estimates and RUL predictions can be used for the optimization of the systems Operation and Maintenance (OM). This is an ambitious and challenging task, which requires to consider many factors, including the availability of maintenance crews, the variability of energy demand and production, the influence of the operating conditions on equipment performance and degradation and the long time horizons of renewable energy systems usage. We develop a novel formulation of the OM optimization as a sequential decision problem and we resort to Deep Reinforcement Learning (DRL) to solve it. The proposed solution approach combines proximal policy optimization, imitation learning, for pre-training the learning agent, and a model of the environment which describes the renewable energy system behavior. The solution approach is tested by its application to a wind farm O-and-M problem. The optimal solution found is shown to outperform those provided by other DRL algorithms. Also, the approach does not require to select a-priori a maintenance strategy, but, rather, it discovers the best performing policy by itself
 
+\section{Previous research}
+In this section we conduct a detailed study of previous research on applying IL to the domain of PdM.
+
+\begingroup
+\setlength{\tabcolsep}{6pt}
+\begin{table}[h!]
+	\renewcommand{\arraystretch}{1.5}
+	\fontfamily{lmss}\selectfont
+	\begin{tabular}{L{2.5cm} L{4cm} L{4cm} L{4cm}}
+		\midrule[0.01pt]
+		\textbf{Article} & \textbf{Application area} & \textbf{Technique} & \textbf{Novelty and comments}\\ \midrule[0.01pt]
+		\cite{PdM-Hao2024} & Operation and maintenance policy for IoT (cyber physical) based energy systems.  & Proximal Policy Optimization (PPO) and Behavioral Cloning & Cyber aging as a SDP. Behavioral Cloning to generate trajectories and then train RL maintenance agent using PPO. \\
+		\cite{PdM-Hao2023} & xxxxx & xxx & xxx\\
+		\cite{PdM-Sugisawa2022} & xxxx \\
+		\cite{PdM-Oh2019} & xxxx & xxx & xxx\\
+		\midrule[0.01pt]
+	\end{tabular}
+	\caption{Research articles that have applied Imitation Learning techniques to predictive maintenance.} \label{tbl:IL-PdM}
+\end{table}
+\endgroup
+
+\subsubsection{Case-study-1: \cite{PdM-Hao2024}}
+\cite{PdM-Hao2024} -- \citefield{PdM-Hao2024}{title}.
+
+Operation and maintenance policy for IoT (cyber physical) based energy systems.
+
+Proximal Policy Optimization (PPO) and Behavioral Cloning and Cyber aging as a SDP. Behavioral Cloning to generate trajectories and then train RL maintenance agent using PPO. The cyber-aging model considers memory leakages and resultant data-jamming. They are modeled as a Continuous-Time Markov Chain (CTMC) based on \citep{Hao2021-CPES-1, Hao2021-CPES-2}.
+
+RE-WORD below copied points\\
+1. case study conducted on Advanced Lead-cooled Fast Reactor European Demonstrator (ALFRED)\\
+2. The main hardware components of ALFRED, i.e., water pump, sensors, turbine admission valve and control rods, are considered equipped with RUL estimation capabilities,\\
+3. cyber component (controller) is considered able to access current available memory and operating time\\
+4. Tech stack: PPO + IL (Behavioral Cloning) + CPES model ``that embeds the hardware components RULs estimator, the hardware components failure process model and the cyber aging model''\\
+5. Cyber aging caused by aging-related bugs (such as memory leakage) generate errors that propagate inside the system. Memory leakage may lead to data-jamming and prevent data processing or tasks delivering in due time, ultimately resulting in data queueing and memory request increase that blocks the system [25], reduces the controllability and stability of the controlled physical system, and leads to system failure [34]. \\
+  
+
+
+\subsubsection{Case-study-2: \cite{PdM-Hao2023}}
+\cite{PdM-Hao2023} -- \citefield{PdM-Hao2023}{title}
+xx
+
+\subsubsection{Case-study-3: \cite{PdM-Sugisawa2022}}
+\cite{PdM-Sugisawa2022} -- \citefield{PdM-Sugisawa2022}{title}
+xx
+
+\subsubsection{Case-study-4: \cite{PdM-Oh2019}}
+\cite{PdM-Oh2019} -- \citefield{PdM-Oh2019}{title}
+xx
+
+%\begingroup
+%\setlength{\tabcolsep}{6pt}
+%\begin{table}[h!]
+%	\renewcommand{\arraystretch}{1.5}
+%	\fontfamily{lmss}\selectfont
+%	\begin{tabular}{L{2cm} L{6cm} L{3cm} L{3cm}}
+%		\midrule[0.01pt]
+%		\textbf{Article} & \textbf{Title} & \textbf{Application area} & \textbf{Technique}\\ \midrule[0.01pt]
+%		\cite{PdM-Hao2024} & \citefield{PdM-Hao2024}{title} & xxx & Proximal Policy Optimization (PPO) and
+%		Imitation Learning (IL)\\
+%		 & xxx & xxx\\
+%		{title}\\
+%		 & xxx & xxx\\
+%		\midrule[0.01pt]
+%	\end{tabular}
+%	\caption{Research articles that have applied Imitation Learning techniques to predictive maintenance.} \label{tbl:-del-IL-PdM}
+%\end{table}
+%\endgroup
 
 
 \section{Poiani-2024-Inverse Reinforcement Learning with Sub-optimal Experts}
@@ -722,7 +787,7 @@ Intro $\rightarrow$ II. EVENT-DRIVEN METERING: OVERVIEW $\rightarrow$
 				CBM& Condition Based Maintenance&CM & Corrective Maintenance\\
 				EoL& End-of-life & KPI&Key Performance Indicator\\
 				MIMO&Multiple-input multiple-output & PdM & Predictive Maintenance\\
-				PdM& Predictive Maintenance&PHM& Prognostic Health Management\\
+				SDP & Sequential Decision Problem&PHM& Prognostic Health Management\\
 				PHM& Prognostic Health Management&PM & Preventive Maintenance\\
 				RTFP&Run-to-failure based maintenance policy&RUL& Remaining useful life\\
 				SBP& State-based maintenance policy&TBP&Time-based maintenance policy\\ \\

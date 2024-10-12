@@ -1,13 +1,27 @@
-# Inverse Reinforcement Learning for Predictive Maintenance
+# Reinforcement Learning for Predictive Maintenance
 
-- 03-Aug-2024
-- Learn the reward function from expert demonstrations
+**Approach**: PhD Thesis work
 
-- V.1.0 04-Aug-2024: Create a new custom Gym
+V.1.0 11-Oct-2024:
+- Create two environments: PHM and NUAA
+- To demonstrate robustness - Use multiple data sets from each 3 + 3 = 6
+- Additional: Add noise and Break-down
+- Publish results
 
-## PLAN / TO-DO
-1. Environment modifications: In ````reset``` Random starting life point - DONE
-2. Add IRL BC to code - DONE
-3. Save the PPO model -
-4. and load as expert everytime and re-generate trajectories - but basically avoid retraining everytime
-        
+
+### Notes:
+
+**Environment**: 
+- Only **raw** features. NO derived features like Dr Sameer Sayyad.
+- 
+
+```
+    high = np.array(  [
+        1.0,          # Max. force_x
+        1.0,          # Max. force_y
+        1.0,          # Max. force_z
+        1.0,          # Max. vibration_x
+        1.0,          # Max. vibration_y
+        1.0,          # Max. vibration_z                
+    ], dtype=np.float32,) 
+```
