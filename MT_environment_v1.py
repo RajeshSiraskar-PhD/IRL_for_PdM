@@ -176,9 +176,8 @@ class MillingTool_Env_NUAA(gym.Env):
 
         # Action taken, set reward    
         self.reward = (self.current_time_step + 1) / (self.maintenance_cost+LAMBDA)
-        self.reward = self.reward / 1e3 
-        # PHM= 1/1000, NUAAA = 1/2
-        # self.reward = self.reward / 2.0
+        # self.reward = self.reward / 1e3 # PHM= 1/1000, NUAAA = 1/2
+        self.reward = self.reward / 2.0
         
         # Information arrays 
         a_time.append(self.current_time_step)

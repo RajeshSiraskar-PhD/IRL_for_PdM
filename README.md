@@ -6,6 +6,11 @@
     - Fundamentally **different** datasets - material, sensors etc.
     - Features are **different**
 
+## Important implementation notes
+- Rewards for NUAA and PHM similar range: Keep number of records similar - bout 1000
+- RUL value threshold should have some value and not 0
+
+
 **Approach**: PhD Thesis work
 
 V.1.0 11-Oct-2024:
@@ -23,7 +28,7 @@ V.1.0 11-Oct-2024:
 **Environment**: 
 
 - Only **raw** features. NO derived features like Dr Sameer Sayyad.
-- 
+-
 
 ```
     high = np.array(  [
