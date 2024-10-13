@@ -32,8 +32,8 @@ a_action_recommended = []
 class MillingTool_Env_NUAA(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, records=0, rul_threshold=0.0):
-        print(f'\n -- Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
+    def __init__(self, records=0, env_type = '', rul_threshold=0.0):
+        print(f'\n -- {env_type} Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
         # Initialize
         self.df = None
         self.current_time_step = 0
@@ -206,8 +206,9 @@ class MillingTool_Env_NUAA(gym.Env):
 class MillingTool_Env_PHM(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
-    def __init__(self, records=0, rul_threshold=0.0):
-        print(f'\n -- Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
+    def __init__(self, records=0, env_type = '', rul_threshold=0.0):
+        print(f'\n -- {env_type} Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
+
         # Initialize
         self.df = None
         self.current_time_step = 0
