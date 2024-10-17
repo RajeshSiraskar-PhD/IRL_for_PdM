@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import datetime
 
 def tool_wear_data(env_type, data_file, wear_threshold, normalize=False, add_noise=False, sampling_rate=1):
+    data_file_name = (data_file.split('/')[-1]).split('.')[0]
     ## Read data
     df_raw = pd.read_csv(data_file)
 
@@ -57,7 +58,7 @@ def tool_wear_data(env_type, data_file, wear_threshold, normalize=False, add_noi
         wear_threshold_return = wear_threshold
         plt.axhline(y = wear_threshold, color = 'r', linestyle = '--', alpha=0.3) 
 
-    plt.title(f'Tool wear - {env_type} dataset')
+    plt.title(f'Tool wear - {data_file_name} dataset')
     plt.grid(color='lightgray', linestyle='-', linewidth=0.5)
     plt.show()
 
