@@ -17,14 +17,10 @@ REPLACE = 1
 
 # Information arrays 
 a_time = []
-a_actions = []
-a_action_text = []
-a_rewards = []
-a_rul = []
+
 a_cost = []
 a_replacements = []
 a_time_since_last_replacement = []
-a_action_recommended = []
 
 ## --------------------------------------------------------------------------------------------------------------------------
 ##
@@ -33,8 +29,13 @@ class MillingTool_Env_NUAA(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, records=0, env_type = '', rul_threshold=0.0):
-        print(f'\n -- {env_type} Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
+        print(f'\n -- Env. v.2  {env_type} Milling tool environment initiatlized. Potential records {records}. RUL threshold {rul_threshold:4.3f}')
         # Initialize
+        self.a_rewards = []
+        self.a_actions = []
+        self.a_action_recommended = []
+        self.a_rul = []
+        
         self.df = None
         self.current_time_step = 0
         self.records = records
@@ -72,7 +73,7 @@ class MillingTool_Env_NUAA(gym.Env):
             ],
             dtype=np.float32,
         )
-
+        
         self.observation_space = spaces.Box(low, high, dtype=np.float32)
 
         # Actions - Normal, L1-maintenance, L2-maintenance, Replace
@@ -101,7 +102,6 @@ class MillingTool_Env_NUAA(gym.Env):
         else:
             obs_values = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float32)
         
-        
         observation = obs_values.flatten()
         return observation
 
@@ -110,7 +110,7 @@ class MillingTool_Env_NUAA(gym.Env):
         if (self.df is not None):
             # From database extract recommended action
             recommended_action = int(self.df.loc[self.current_time_step, 'ACTION_CODE'])
-            rul =  float(self.df.loc[self.current_time_step, 'RUL'])
+            rul = float(self.df.loc[self.current_time_step, 'RUL'])
         else:
             # No database - use dummy values
             recommended_action = 0
@@ -132,7 +132,14 @@ class MillingTool_Env_NUAA(gym.Env):
         super().reset(seed=seed)
 
         # Choose the tool wear at a random time (spatial) location from a uniformly random distribution
-        self.current_time_step = np.random.randint(0, int(RANDOM_TOOL_START_OF_LIFE * self.records), 1, dtype=int)
+        # self.current_time_step = np.random.randint(0, int(RANDOM_TOOL_START_OF_LIFE * self.records), 1, dtype=int)
+        # self.current_time_step = 0
+        # self.a_rewards = []
+        # self.a_actions = []
+        # self.a_action_recommended = []
+        # self.a_rul = []
+
+        recommended_action, self.rul = self._get_auxilliary_info()
         observation = self._get_observation()
         info = {'reset':'Reset'}
         
@@ -181,15 +188,18 @@ class MillingTool_Env_NUAA(gym.Env):
         # self.reward = self.reward / 2.0
         
         # Information arrays 
+        self.a_rewards.append(self.reward)
+        self.a_action_recommended.append(recommended_action)
+        self.a_rul.append(self.rul)
+        self.a_actions.append(action)
+
+        ## $$$
+        # print(action, end=', ')
+        
         a_time.append(self.current_time_step)
-        a_actions.append(action)
-        a_action_text.append(recommended_action)
-        a_rewards.append(self.reward)
-        a_rul.append(self.rul)
         a_cost.append(self.maintenance_cost)
         a_replacements.append(self.replacement_events)
         a_time_since_last_replacement.append(self.time_since_last_replacement)
-        a_action_recommended.append(recommended_action)
         
         # Action taken, reward set for that action, now take in next observation
         reward = float(self.reward)
@@ -306,7 +316,8 @@ class MillingTool_Env_PHM(gym.Env):
         super().reset(seed=seed)
 
         # Choose the tool wear at a random time (spatial) location from a uniformly random distribution
-        self.current_time_step = np.random.randint(0, int(RANDOM_TOOL_START_OF_LIFE * self.records), 1, dtype=int)
+        # self.current_time_step = np.random.randint(0, int(RANDOM_TOOL_START_OF_LIFE * self.records), 1, dtype=int)
+        self.current_time_step = 0
         observation = self._get_observation()
         info = {'reset':'Reset'}
         

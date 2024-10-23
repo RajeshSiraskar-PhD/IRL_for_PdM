@@ -25,6 +25,17 @@ def tool_wear_data(env_type, data_file, wear_threshold, normalize=False, add_noi
     if add_noise:
         df['tool_wear'] = df['tool_wear'] + np.random.normal(0, 1, n_points)/add_noise
 
+    # tool_wear = df['tool_wear']
+    # plt.figure(figsize=(10, 2.5))
+    # plt.plot(tool_wear, linewidth=1)
+    # plt.axhline(y = wear_threshold, color = 'r', linestyle = '--', alpha=0.3) 
+    # plt.title(f'Tool wear - {data_file_name} dataset')
+    # plt.grid(color='lightgray', linestyle='-', linewidth=0.5)
+    # plt.show()
+    # fig = plt.figure()
+    # save_plot = f'Tool_wear_{data_file_name}.jpg'
+    # plt.savefig(save_plot)
+    
     # Normalize
     if normalize:
         WEAR_MIN = df['tool_wear'].min() 
@@ -52,16 +63,17 @@ def tool_wear_data(env_type, data_file, wear_threshold, normalize=False, add_noi
     if normalize:
         plt.plot(action_code_normalized, linewidth=1)
         wear_threshold_return = WEAR_THRESHOLD_NORMALIZED
+        # print('\n\n WEAR_THRESHOLD_NORMALIZED: ', WEAR_THRESHOLD_NORMALIZED)
         plt.axhline(y = WEAR_THRESHOLD_NORMALIZED, color = 'r', linestyle = '--', alpha=0.3) 
     else:
         plt.plot(action_code, linewidth=1)
         wear_threshold_return = wear_threshold
         plt.axhline(y = wear_threshold, color = 'r', linestyle = '--', alpha=0.3) 
 
-    plt.title(f'Tool wear - {data_file_name} dataset')
+    plt.title(f'Tool wear - {env_type} dataset')
     plt.grid(color='lightgray', linestyle='-', linewidth=0.5)
     plt.show()
-
+    
     return tool_wear, action_code, wear_threshold_return, df_train
     
 def downsample(df, sample_rate):
